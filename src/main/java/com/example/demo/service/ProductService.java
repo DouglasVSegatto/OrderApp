@@ -1,15 +1,12 @@
 package com.example.demo.service;
 
+import com.example.demo.exceptions.ProductNotFoundException;
 import com.example.demo.model.Product;
-import com.example.demo.model.User;
-import com.example.demo.model.dto.ReplaceProduct;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PatchMapping;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +18,9 @@ public class ProductService {
     List<Product> productList = new ArrayList<>();
 
     public ProductService(){
-        productList.add(new Product("Blusa", "Roupa",0));
-        productList.add(new Product("Calca", "Roupa",0));
-        productList.add(new Product("Teclado", "Eletronico",0));
+        productList.add(new Product("Blusa", "Roupa",0, new BigDecimal("10.99"), false));
+        productList.add(new Product("Calca", "Roupa",0, new BigDecimal("9.99"), false));
+        productList.add(new Product("Teclado", "Eletronico",10,new BigDecimal("50.00"), true));
     }
 
     public List<Product> getAll(){

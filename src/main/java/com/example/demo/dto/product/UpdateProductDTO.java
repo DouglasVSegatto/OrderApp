@@ -1,11 +1,11 @@
-package com.example.demo.model.dto;
+package com.example.demo.dto.product;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateProduct {
+public class UpdateProductDTO {
 
     private String field;
     private String value;

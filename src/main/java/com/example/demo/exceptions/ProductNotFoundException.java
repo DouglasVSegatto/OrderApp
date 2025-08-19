@@ -1,4 +1,4 @@
-package com.example.demo.service;
+package com.example.demo.exceptions;
 
 public class ProductNotFoundException extends Throwable {
     public ProductNotFoundException(Long id) {

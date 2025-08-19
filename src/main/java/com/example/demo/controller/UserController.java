@@ -1,16 +1,13 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.User;
-import com.example.demo.model.dto.RequestUser;
+import com.example.demo.dto.user.RequestUserDTO;
 import com.example.demo.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Random;
-import java.util.random.RandomGenerator;
 
 @RestController
 @RequestMapping("/user")
@@ -28,11 +25,11 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> postUser(@RequestBody RequestUser requestUser){
+    public ResponseEntity<?> postUser(@RequestBody RequestUserDTO requestUserDTO){
         User newUser = new User();
         newUser.setId(new Random().nextLong());
-        newUser.setFirstName(requestUser.getFirstName());
-        newUser.setLastName(requestUser.getLastName());
+        newUser.setFirstName(requestUserDTO.getFirstName());
+        newUser.setLastName(requestUserDTO.getLastName());
         return ResponseEntity.status(201).body(newUser);
     }
 
