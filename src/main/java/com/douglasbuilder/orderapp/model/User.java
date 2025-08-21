@@ -11,22 +11,15 @@ import lombok.*;
 @Entity
 public class User {
 
-    @Id
-    @GeneratedValue
-    @Column
-    private Long id;
-    @Column
-    @NonNull
-    private String firstName;
-    @Column
-    @NonNull
-    private String lastName;
-    @Column(unique = true)
-    @NonNull
-    private String email;
+  @Id @GeneratedValue @Column private Long id;
+  @Column @NonNull private String firstName;
+  @Column @NonNull private String lastName;
 
-    public String fullName(){
-        return getFirstName() + " " + getLastName();
-    }
+  @Column(unique = true)
+  @NonNull
+  private String email;
 
+  public String fullName() {
+    return getFirstName() + " " + getLastName();
+  }
 }

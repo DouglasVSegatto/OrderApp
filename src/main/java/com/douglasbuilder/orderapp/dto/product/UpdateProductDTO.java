@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class UpdateProductDTO {
 
-    private String field;
-    private String value;
+  private String field;
+  private String value;
 }
