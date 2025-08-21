@@ -1,4 +1,4 @@
-package com.example.demo.exceptions;
+package com.douglasbuilder.orderapp.exceptions;
 
 public class ProductNotFoundException extends Throwable {
     public ProductNotFoundException(Long id) {

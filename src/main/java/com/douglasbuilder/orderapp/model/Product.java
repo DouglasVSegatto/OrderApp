@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.douglasbuilder.orderapp.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

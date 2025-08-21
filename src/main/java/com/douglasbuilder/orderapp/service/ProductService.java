@@ -1,7 +1,7 @@
-package com.example.demo.service;
+package com.douglasbuilder.orderapp.service;
 
-import com.example.demo.exceptions.ProductNotFoundException;
-import com.example.demo.model.Product;
+import com.douglasbuilder.orderapp.exceptions.ProductNotFoundException;
+import com.douglasbuilder.orderapp.model.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.stereotype.Service;

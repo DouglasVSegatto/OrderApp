@@ -1,4 +1,4 @@
-package com.example.demo.dto.product;
+package com.douglasbuilder.orderapp.dto.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,11 +11,11 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Getter
 @Setter
-public class CreateProductDTO {
+public class ProductResponseDTO {
 
+    /* Removed type and quantity to simulate a response without few attributes/sensitive information */
+    private Long id;
     private String name;
-    private String type;
-    private int quantity;
     private BigDecimal price;
     private boolean available;
 

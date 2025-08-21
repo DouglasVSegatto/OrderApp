@@ -1,9 +1,12 @@
-package com.example.demo.controller;
+package com.douglasbuilder.orderapp.controller;
 
-import com.example.demo.dto.product.*;
-import com.example.demo.model.Product;
-import com.example.demo.exceptions.ProductNotFoundException;
-import com.example.demo.service.ProductService;
+import com.douglasbuilder.orderapp.dto.product.CreateProductDTO;
+import com.douglasbuilder.orderapp.dto.product.ProductResponseDTO;
+import com.douglasbuilder.orderapp.dto.product.ReplaceProductDTO;
+import com.douglasbuilder.orderapp.dto.product.UpdateProductDTO;
+import com.douglasbuilder.orderapp.exceptions.ProductNotFoundException;
+import com.douglasbuilder.orderapp.model.Product;
+import com.douglasbuilder.orderapp.service.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

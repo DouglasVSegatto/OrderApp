@@ -1,4 +1,4 @@
-package com.example.demo.dto.user;
+package com.douglasbuilder.orderapp.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
