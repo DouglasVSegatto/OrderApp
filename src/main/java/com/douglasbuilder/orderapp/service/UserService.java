@@ -27,12 +27,15 @@ public class UserService {
     return userRepository.findAll();
   }
 
-  public User findByEmail(String email) {
-    User user = userRepository.findByEmail(email);
-    if (user == null) {
-      throw new UserNotFoundException("No User found with email: " + email);
+  public User create(CreateUserDTO createUserDTO) {
+    boolean emailExists = userRepository.existsByEmail(createUserDTO.getEmail());
+    if (emailExists) {
+      throw new DuplicateEmailException("Email already in use: " + createUserDTO.getEmail());
     }
-    return user;
+    User newUser =
+            new User(
+                    createUserDTO.getFirstName(), createUserDTO.getLastName(), createUserDTO.getEmail());
+    return userRepository.save(newUser);
   }
 
   public User findById(Long id) {
@@ -43,25 +46,6 @@ public class UserService {
     return user.orElse(null);
   }
 
-  public User create(CreateUserDTO createUserDTO) {
-    boolean emailExists = userRepository.existsByEmail(createUserDTO.getEmail());
-    if (emailExists) {
-      throw new DuplicateEmailException("Email already in use: " + createUserDTO.getEmail());
-    }
-    User newUser =
-        new User(
-            createUserDTO.getFirstName(), createUserDTO.getLastName(), createUserDTO.getEmail());
-    return userRepository.save(newUser);
-  }
-
-  public void deleteByEmail(String email) {
-    boolean emailExists = userRepository.existsByEmail(email);
-    if (!emailExists) {
-      throw new UserNotFoundException("No User found with email: " + email);
-    }
-    userRepository.deleteByEmail(email);
-  }
-
   public void deleteById(Long id) {
     boolean idExists = userRepository.existsById(id);
     if (!idExists) {
@@ -70,11 +54,8 @@ public class UserService {
     userRepository.deleteById(id);
   }
 
-  public User updateByEmail(String email, UpdateUserDTO updateUserDTO) {
-    User user = userRepository.findByEmail(email);
-    if (user == null) {
-      throw new UserNotFoundException("No User found with email: " + email);
-    }
+  public User updateById(Long id, UpdateUserDTO updateUserDTO) {
+    User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
 
     if (updateUserDTO.getFirstName() != null) {
       user.setFirstName(updateUserDTO.getFirstName());
@@ -85,8 +66,27 @@ public class UserService {
     return userRepository.save(user);
   }
 
-  public User updateById(Long id, UpdateUserDTO updateUserDTO) {
-    User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
+  public User findByEmail(String email) {
+    User user = userRepository.findByEmail(email);
+    if (user == null) {
+      throw new UserNotFoundException("No User found with email: " + email);
+    }
+    return user;
+  }
+
+  public void deleteByEmail(String email) {
+    boolean emailExists = userRepository.existsByEmail(email);
+    if (!emailExists) {
+      throw new UserNotFoundException("No User found with email: " + email);
+    }
+    userRepository.deleteByEmail(email);
+  }
+
+  public User updateByEmail(String email, UpdateUserDTO updateUserDTO) {
+    User user = userRepository.findByEmail(email);
+    if (user == null) {
+      throw new UserNotFoundException("No User found with email: " + email);
+    }
 
     if (updateUserDTO.getFirstName() != null) {
       user.setFirstName(updateUserDTO.getFirstName());

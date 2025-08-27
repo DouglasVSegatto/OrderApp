@@ -1,12 +1,18 @@
 package com.douglasbuilder.orderapp.service;
 
-import com.douglasbuilder.orderapp.exceptions.ProductNotFoundException;
+import com.douglasbuilder.orderapp.dto.product.CreateProductDTO;
+import com.douglasbuilder.orderapp.dto.product.UpdateProductDTO;
+import com.douglasbuilder.orderapp.exceptions.product.DuplicateNameException;
+import com.douglasbuilder.orderapp.exceptions.product.ProductNotFoundException;
+import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.model.Product;
-import java.math.BigDecimal;
-import java.util.ArrayList;
+
 import java.util.List;
+
+import com.douglasbuilder.orderapp.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
@@ -14,64 +20,50 @@ import org.springframework.stereotype.Service;
 @Data
 public class ProductService {
 
-  List<Product> productList = new ArrayList<>();
+  @Autowired private ProductRepository productRepository;
+  
+  public List<Product> getAll() { return productRepository.findAll();}
 
-  public ProductService() {
-    productList.add(new Product("Blusa", "Roupa", 0, new BigDecimal("10.99"), false));
-    productList.add(new Product("Calca", "Roupa", 0, new BigDecimal("9.99"), false));
-    productList.add(new Product("Teclado", "Eletronico", 10, new BigDecimal("50.00"), true));
+  public Product find(Long id) {
+    return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + id));
   }
 
-  public List<Product> getAll() {
-    return productList;
-  }
-
-  public Product getProductById(Long id) {
-    return productList.stream()
-        .filter(product -> product.getId().equals(id))
-        .findFirst()
-        .orElse(null);
-  }
-
-  public void removeProductById(Long id) {
-    productList.removeIf(product -> product.getId().equals(id));
-  }
-
-  public Product addProduct(Product product) {
-    productList.add(product);
-    return product;
-  }
-
-  public Product replaceProduct(Long id, Product replaceProduct) throws ProductNotFoundException {
-    Product foundProduct = getProductById(id);
-    if (foundProduct == null) {
-      throw new ProductNotFoundException(id);
+  public void delete(Long id) {
+    if (!productRepository.existsById(id)){
+      throw new ProductNotFoundException("Product not found with ID: " + id);
     }
-    productList.set(Math.toIntExact(id - 1), replaceProduct);
-    return replaceProduct;
+    productRepository.deleteById(id);
   }
 
-  public Product updateProductById(Long id, String field, Object value)
-      throws ProductNotFoundException {
-    Product product = getProductById(id);
-
-    if (product == null) {
-      throw new ProductNotFoundException(id);
+  public Product create(CreateProductDTO createProductDTO) {
+    if (productRepository.existsByName(createProductDTO.getName())){
+      throw new DuplicateNameException("Product name already registered. Name: " + createProductDTO.getName());
     }
-
-    switch (field.toLowerCase()) {
-      case "name":
-        product.setName((String) value);
-        break;
-      case "type":
-        product.setType((String) value);
-        break;
-      case "quantity":
-        product.setQuantity(Integer.parseInt((String) value));
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid field: " + field);
-    }
-    return product;
+    return productRepository.save(new Product(
+            createProductDTO.getName(),
+            createProductDTO.getType(),
+            createProductDTO.getQuantity(),
+            createProductDTO.getPrice(),
+            createProductDTO.isAvailable()
+    ));
   }
+
+  public Product update(Long id, UpdateProductDTO updateProductDTO) {
+    Product product = productRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Product ID not found"));
+
+    if (updateProductDTO.getType() != null){
+      product.setType(updateProductDTO.getType());
+    }
+    if (updateProductDTO.getQuantity() != null){
+      product.setQuantity(updateProductDTO.getQuantity());
+    }
+    if (updateProductDTO.getPrice() != null){
+      product.setPrice(updateProductDTO.getPrice());
+    }
+    if (updateProductDTO.isAvailable() != product.isAvailable()){
+      product.setAvailable(updateProductDTO.isAvailable());
+    }
+    return productRepository.save(product);
+  }
+
 }
