@@ -7,6 +7,8 @@ import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.UserRepository;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,12 +27,20 @@ public class UserService {
     return userRepository.findAll();
   }
 
-  public User getByEmail(String email) {
+  public User findByEmail(String email) {
     User user = userRepository.findByEmail(email);
     if (user == null) {
       throw new UserNotFoundException("No User found with email: " + email);
     }
     return user;
+  }
+
+  public User findById(Long id) {
+    Optional<User> user = userRepository.findById(id);
+    if (user.isEmpty()) {
+      throw new UserNotFoundException("No User found with ID: " + id);
+    }
+    return user.orElse(null);
   }
 
   public User create(CreateUserDTO createUserDTO) {
@@ -44,7 +54,7 @@ public class UserService {
     return userRepository.save(newUser);
   }
 
-  public void delete(String email) {
+  public void deleteByEmail(String email) {
     boolean emailExists = userRepository.existsByEmail(email);
     if (!emailExists) {
       throw new UserNotFoundException("No User found with email: " + email);
@@ -52,11 +62,31 @@ public class UserService {
     userRepository.deleteByEmail(email);
   }
 
-  public User update(String email, UpdateUserDTO updateUserDTO) {
+  public void deleteById(Long id) {
+    boolean idExists = userRepository.existsById(id);
+    if (!idExists) {
+      throw new UserNotFoundException("No User found with ID: " + id);
+    }
+    userRepository.deleteById(id);
+  }
+
+  public User updateByEmail(String email, UpdateUserDTO updateUserDTO) {
     User user = userRepository.findByEmail(email);
     if (user == null) {
       throw new UserNotFoundException("No User found with email: " + email);
     }
+
+    if (updateUserDTO.getFirstName() != null) {
+      user.setFirstName(updateUserDTO.getFirstName());
+    }
+    if (updateUserDTO.getLastName() != null) {
+      user.setLastName(updateUserDTO.getLastName());
+    }
+    return userRepository.save(user);
+  }
+
+  public User updateById(Long id, UpdateUserDTO updateUserDTO) {
+    User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
 
     if (updateUserDTO.getFirstName() != null) {
       user.setFirstName(updateUserDTO.getFirstName());
