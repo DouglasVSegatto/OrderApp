@@ -1,25 +1,30 @@
 package com.douglasbuilder.orderapp.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
-@RequiredArgsConstructor
-@NoArgsConstructor
-@Table(name = "users")
+@Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "users")
 public class User {
 
-  @Id @GeneratedValue @Column private Long id;
-  @Column @NonNull private String firstName;
-  @Column @NonNull private String lastName;
+    @Id
+    @GeneratedValue
+    @Column
+    private Long id;
+    @Column
+    private String firstName;
+    @Column
+    private String lastName;
 
-  @Column(unique = true)
-  @NonNull
-  private String email;
+    @Column(unique = true)
+    private String email;
 
-  public String fullName() {
-    return getFirstName() + " " + getLastName();
-  }
+    public String fullName() {
+        return getFirstName() + " " + getLastName();
+    }
 }

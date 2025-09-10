@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-public class UpdateUserDTO {
-    String firstName;
-    String lastName;
+@NoArgsConstructor
+@AllArgsConstructor
+public class UpdatePasswordUserDTO {
     String email;
 }
