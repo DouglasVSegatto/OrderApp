@@ -1,27 +1,29 @@
 package com.douglasbuilder.orderapp.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
-@NoArgsConstructor
-@RequiredArgsConstructor
-@Getter
-@Setter
-@Table(name = "order_items")
+@Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "order_items")
 public class OrderItem {
 
-    @Id @GeneratedValue @Column private Long id;
+    @Id
+    @GeneratedValue
+    @Column
+    private Long id;
 
     // Aqui estou usando tudo baseado em ID, AI recomendou criar DB relationship
     //    @ManyToOne
     //    @JoinColumn(name = "order_id", nullable = false)
     //    private Order order;
-    @Column @NonNull private Long orderId;
-    @Column @NonNull private Long productId;
-    @Column private int quantity;
-    @Column @NonNull private BigDecimal price;
+//    private Order order;
+//    private List<Product> products;
+//    private Integer quantity;
+//    private BigDecimal priceAtPurchase;
 
 }

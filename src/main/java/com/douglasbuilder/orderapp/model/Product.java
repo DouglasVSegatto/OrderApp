@@ -1,23 +1,34 @@
 package com.douglasbuilder.orderapp.model;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 
-import jakarta.persistence.*;
-import lombok.*;
-
-@NoArgsConstructor
-@RequiredArgsConstructor
-@Getter
-@Setter
-@Table(name = "producs")
+@Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "products")
 public class Product {
 
-  @Id @GeneratedValue @Column private Long id;
-  @Column(unique = true) @NonNull private String name;
-  @Column @NonNull private String type;
-  @Column @NonNull private int quantity;
-  @Column @NonNull private BigDecimal price;
-  @Column @NonNull private boolean available;
+    @Id
+    @GeneratedValue
+    @Column
+    private Long id;
+    @Column
+    private String name;
+    @Column(unique = true)
+    private String sku; // Stock Keeping Unit
+    @Column
+    private String type;
+    @Column(nullable = false)
+    private Long quantityInStock;
+    @Column
+    private BigDecimal price;
+    @Column
+    private Boolean available;
 
 }

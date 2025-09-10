@@ -1,20 +1,20 @@
 package com.douglasbuilder.orderapp.dto.product;
 
-import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import java.math.BigDecimal;
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 public class CreateProductDTO {
 
-  private String name;
-  private String type;
-  private int quantity;
-  private BigDecimal price;
-  private boolean available;
+    private String name;
+    private String sku; // Stock Keeping Unit
+    private String type;
+    private Long quantity;
+    private BigDecimal price;
+    private Boolean available;
 }
