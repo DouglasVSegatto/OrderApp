@@ -1,12 +1,16 @@
 package com.douglasbuilder.orderapp.dto.product;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+import java.math.BigDecimal;
+
+@Data
 public class UpdateProductDTO {
 
-  private String field;
-  private String value;
+    private String name;
+    private String type;
+    private Long quantity;
+    private BigDecimal price;
+    private Boolean available;
+
 }

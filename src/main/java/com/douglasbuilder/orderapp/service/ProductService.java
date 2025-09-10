@@ -1,77 +1,82 @@
 package com.douglasbuilder.orderapp.service;
 
-import com.douglasbuilder.orderapp.exceptions.ProductNotFoundException;
+import com.douglasbuilder.orderapp.dto.product.CreateProductDTO;
+import com.douglasbuilder.orderapp.dto.product.UpdateProductDTO;
+import com.douglasbuilder.orderapp.exceptions.product.DuplicateNameException;
+import com.douglasbuilder.orderapp.exceptions.product.ProductNotFoundException;
+import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.model.Product;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.AllArgsConstructor;
+import com.douglasbuilder.orderapp.repository.ProductRepository;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@AllArgsConstructor
-@Service
+import java.util.List;
+
 @Data
+@Service
+@RequiredArgsConstructor
 public class ProductService {
 
-  List<Product> productList = new ArrayList<>();
+    private final ProductRepository productRepository;
 
-  public ProductService() {
-    productList.add(new Product("Blusa", "Roupa", 0, new BigDecimal("10.99"), false));
-    productList.add(new Product("Calca", "Roupa", 0, new BigDecimal("9.99"), false));
-    productList.add(new Product("Teclado", "Eletronico", 10, new BigDecimal("50.00"), true));
-  }
-
-  public List<Product> getAll() {
-    return productList;
-  }
-
-  public Product getProductById(Long id) {
-    return productList.stream()
-        .filter(product -> product.getId().equals(id))
-        .findFirst()
-        .orElse(null);
-  }
-
-  public void removeProductById(Long id) {
-    productList.removeIf(product -> product.getId().equals(id));
-  }
-
-  public Product addProduct(Product product) {
-    productList.add(product);
-    return product;
-  }
-
-  public Product replaceProduct(Long id, Product replaceProduct) throws ProductNotFoundException {
-    Product foundProduct = getProductById(id);
-    if (foundProduct == null) {
-      throw new ProductNotFoundException(id);
-    }
-    productList.set(Math.toIntExact(id - 1), replaceProduct);
-    return replaceProduct;
-  }
-
-  public Product updateProductById(Long id, String field, Object value)
-      throws ProductNotFoundException {
-    Product product = getProductById(id);
-
-    if (product == null) {
-      throw new ProductNotFoundException(id);
+    public List<Product> getAll() {
+        return productRepository.findAll();
     }
 
-    switch (field.toLowerCase()) {
-      case "name":
-        product.setName((String) value);
-        break;
-      case "type":
-        product.setType((String) value);
-        break;
-      case "quantity":
-        product.setQuantity(Integer.parseInt((String) value));
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid field: " + field);
+    public Product find(Long id) {
+        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + id));
     }
-    return product;
-  }
+
+    public void delete(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new ProductNotFoundException("Product not found with ID: " + id);
+        }
+        productRepository.deleteById(id);
+    }
+
+    public Product create(CreateProductDTO createProductDTO) {
+
+        if (productRepository.existsBySku(createProductDTO.getSku())) {
+            throw new DuplicateNameException("Product name already registered. Name: " + createProductDTO.getName());
+        }
+
+        //TODO refactor to use mapper like MapStruct UserService
+        var newProduct = new Product();
+        newProduct.setName(createProductDTO.getName());
+        newProduct.setSku(createProductDTO.getSku());
+        newProduct.setType(createProductDTO.getType());
+        newProduct.setQuantityInStock(createProductDTO.getQuantity());
+        newProduct.setPrice(createProductDTO.getPrice());
+        newProduct.setAvailable(createProductDTO.getAvailable());
+
+        return productRepository.save(newProduct);
+    }
+
+    public Product update(Long id, UpdateProductDTO updateProductDTO) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Product ID not found"));
+
+        if (updateProductDTO.getType() != null) {
+            product.setType(updateProductDTO.getType());
+        }
+        if (updateProductDTO.getQuantity() != null) {
+            product.setQuantityInStock(updateProductDTO.getQuantity());
+        }
+        if (updateProductDTO.getPrice() != null) {
+            product.setPrice(updateProductDTO.getPrice());
+        }
+
+        //TODO só para verificar o comentatio
+        // não deveria ser nesse momento essa alteração, poderiamos criar uma propriedade nova status Ativo/Inativo
+        // a propriedade available deveria ser alterada somente após a finalização de uma venda,
+        // validando se a quantidade em estoque é maior que zero ou não
+        // mas vamos conversar sobre isso depois
+        if (updateProductDTO.getAvailable() != product.getAvailable()) {
+            product.setAvailable(!product.getAvailable());
+        }
+
+        return productRepository.save(product);
+    }
+
 }
