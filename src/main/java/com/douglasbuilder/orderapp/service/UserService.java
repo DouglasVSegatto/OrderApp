@@ -44,7 +44,6 @@ public class UserService {
         // (in this case, a lambda function that creates a new UserNotFoundException with a message).
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
-
         return userMapper.toDto(user);
     }
 

@@ -27,4 +27,7 @@ public class User {
     public String fullName() {
         return getFirstName() + " " + getLastName();
     }
+
+//    @OneToOne(mappedBy = "user")
+//    private Cart cart;
 }
