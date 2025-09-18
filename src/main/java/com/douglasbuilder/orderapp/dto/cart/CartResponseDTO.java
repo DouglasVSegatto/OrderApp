@@ -14,10 +14,11 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CartResponsesDTO {
+public class CartResponseDTO {
 
     private UUID id;
-    private User user;
+    private Long userId;
+    private String userName;
     private BigDecimal total;
     private List<CartItem> cartItems = new ArrayList<>();
 

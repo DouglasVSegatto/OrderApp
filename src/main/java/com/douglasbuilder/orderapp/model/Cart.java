@@ -29,6 +29,8 @@ public class Cart {
     //Cascade All means any operation/act will affect to all
     // If Save CART it saves all CartItems if delete de CART, it deletes all cartItems
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
-    private List<CartItem> cartItems;
+    private List<CartItem> cartItems = new ArrayList<>();
+
+
 
 }

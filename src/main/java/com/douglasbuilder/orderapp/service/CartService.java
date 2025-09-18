@@ -18,6 +18,7 @@ import lombok.Data;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,26 +35,49 @@ public class CartService {
     private final ProductMapper productMapper;
 
     public Cart getOrCreateCart(Long userId){
-        return cartRepository.findByUserId(userId).orElseGet(() -> {
-            Cart newCart = new Cart();
-            newCart.setUser(internalUserService.findById(userId));
-            return cartRepository.save(newCart);
-        });
+        Cart userCart = cartRepository.findByUserId(userId);
+        if (userCart != null){
+            return userCart;
+        }
+
+        Cart newCart = new Cart();
+        newCart.setUser(internalUserService.findById(userId));
+        newCart.setCartItems(new ArrayList<>());
+        return cartRepository.save(newCart);
+    }
+
+    public Cart getCartByUserId(Long userId){
+        Cart userCart = cartRepository.findByUserId(userId);
+        System.out.println("CART: " + userCart);
+        if (userCart == null ){
+            throw new CartNotFoundException("ID: " + userId);
+        }
+        return userCart;
     }
 
     public void addItemToCart(Long userId, Long productId) {
         Cart userCart = getOrCreateCart(userId);
 
         //TODO improve
-        if (cartItemRepository.existsByCartIdAndProductId(userCart.getId(), productId)){
+        if (cartItemRepository.existsByCart_IdAndProduct_Id(userCart.getId(), productId)){
             throw new CartItemProductAlreadyExists("Product already in the cart");
 
         }
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("ID: " + productId));
+        System.out.println("PRODUCT: " + product);
+        CartItem newCartItem = new CartItem();
+        newCartItem.setProduct(product);
+        newCartItem.setQuantity(1);
+        newCartItem.setPrice(product.getPrice());
 
-        CartItem newCartItem = productMapper.toCartItem(product);
-        newCartItem.setCart(userCart);
+        //AQUI EU ADICIONO NO CARTITEMREPOSITORY
+        // MAS QUANDO EU USO O GET ELE NAO PEGAR DE LA
+        //ELE PEGA O USUARIO ENTAO EU PRECISO:
+        // * fazer um  add no usualrio para adicionar a lista nessa parte do codigo tipo usercart.add(caritem)
+        // * fazer um get do repository quando eu chamo la no controller para pegar o cart do usuario
+        // tipo usuario ta aqui, agora pego do repositoru tudo dele e aditiono a lista e entrego akgi assun,
+
         cartItemRepository.save(newCartItem);
     }
 

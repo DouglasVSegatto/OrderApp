@@ -2,7 +2,7 @@ package com.douglasbuilder.orderapp.controller;
 
 import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.dto.cart.AddItemToCartDTO;
-import com.douglasbuilder.orderapp.dto.cart.CartResponsesDTO;
+import com.douglasbuilder.orderapp.dto.cart.CartResponseDTO;
 import com.douglasbuilder.orderapp.dto.orderitem.CreateOrderItemDTO;
 import com.douglasbuilder.orderapp.dto.orderitem.UpdateOrderItemDTO;
 import com.douglasbuilder.orderapp.mappers.CartMapper;
@@ -37,9 +37,9 @@ public class CartController {
 
     //review requestbody DTO for Cart -- confirm User will be used or user ID
     @GetMapping({"/user/{userId}"})
-    public ResponseEntity<Cart> find(@PathVariable Long userId){
-        Cart userCart = cartService.getOrCreateCart(userId);
-        return ResponseEntity.status(HttpStatus.FOUND).body(userCart);
+    public ResponseEntity<CartResponseDTO> find(@PathVariable Long userId){
+        Cart userCart = cartService.getCartByUserId(userId);
+        return ResponseEntity.status(HttpStatus.FOUND).body(cartMapper.tocartResponseDTO(userCart));
     }
 
     @PostMapping("/user/{userId}")

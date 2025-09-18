@@ -13,10 +13,7 @@ import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Repository
 public interface CartRepository  extends JpaRepository<Cart, Long> {
-    Optional<Cart> findByUser(@NotNull User user);
-
-    Optional<Cart> findByUserId(Long userId);
-
+    Cart findByUserId(Long userId);
     Long user(@NotNull User user);
 
     boolean existsByUserId(Long userId);
