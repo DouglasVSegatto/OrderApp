@@ -29,21 +29,23 @@ public class CartController {
         this.productService = productService;
     }
 
+    // TODO Delete after tests
+    @GetMapping
+    public ResponseEntity<?> getNothing(){
+        return ResponseEntity.status(HttpStatus.OK).body("Nothing to be seen");
+    }
+
     //review requestbody DTO for Cart -- confirm User will be used or user ID
     @GetMapping({"/user/{userId}"})
-    public ResponseEntity<CartResponsesDTO> find(@PathVariable Long userId){
+    public ResponseEntity<Cart> find(@PathVariable Long userId){
         Cart userCart = cartService.getOrCreateCart(userId);
-        return ResponseEntity.ok(cartMapper.toDto(userCart));
+        return ResponseEntity.status(HttpStatus.FOUND).body(userCart);
     }
 
     @PostMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> addItemToCart(@RequestBody Long id, @RequestBody AddItemToCartDTO addItemToCartDTO){
-        cartService.addItemToCart(id, addItemToCartDTO.getProductId());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> addItemToCart(@PathVariable Long userId, @RequestBody AddItemToCartDTO addItemToCartDTO){
+        cartService.addItemToCart(userId, addItemToCartDTO.getProductId());
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-
-
-
 
 }

@@ -9,13 +9,14 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartResponsesDTO {
 
-    private Long id;
+    private UUID id;
     private User user;
     private BigDecimal total;
     private List<CartItem> cartItems = new ArrayList<>();

@@ -2,6 +2,7 @@ package com.douglasbuilder.orderapp.mappers;
 
 import com.douglasbuilder.orderapp.dto.cart.CartResponsesDTO;
 import com.douglasbuilder.orderapp.model.Cart;
+import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -10,7 +11,6 @@ import org.mapstruct.ReportingPolicy;
 
 public interface ProductMapper {
 
-    Product toDto(Product product);
-
+    CartItem toCartItem(Product product);
 
 }
