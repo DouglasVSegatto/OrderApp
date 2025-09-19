@@ -26,6 +26,10 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public List<Product> getCatalog() {
+        return productRepository.getAllByAvailableTrue();
+    }
+
     public Product find(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + id));

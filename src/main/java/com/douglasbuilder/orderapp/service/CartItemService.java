@@ -19,6 +19,4 @@ public class CartItemService {
     public CartItemRepository cartItemRepository;
 
     public List<CartItem> findAll() { return cartItemRepository.findAll();}
-
-
 }

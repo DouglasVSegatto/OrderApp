@@ -25,6 +25,12 @@ public class ProductController {
         return ResponseEntity.ok().body(new ApiResponse<>(products));
     }
 
+    @GetMapping("/catalog")
+    public ResponseEntity<?> getCatalog() {
+        var products = productService.getCatalog();
+        return ResponseEntity.ok().body(new ApiResponse<>(products));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> find(@PathVariable Long id) {
         Product product = productService.find(id);

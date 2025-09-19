@@ -21,15 +21,15 @@ public class CartController {
     }
 
     @GetMapping({"/user/{userId}"})
-    public ResponseEntity<?> find(@PathVariable Long userId) {
+    public ResponseEntity<?> getCart(@PathVariable Long userId) {
         Cart userCart = cartService.getCartByUserId(userId);
-        return ResponseEntity.status(HttpStatus.FOUND).body(cartMapper.tocartResponseDTO(userCart));
+        return ResponseEntity.ok().body(cartMapper.tocartResponseDTO(userCart));
     }
 
     @PostMapping("/user/{userId}")
-    public ResponseEntity<?> addItemToCart(@PathVariable Long userId, @RequestBody AddItemToCartDTO addItemToCartDTO) {
-        cartService.addItemToCart(userId, addItemToCartDTO.getProductId());
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<?> addItem(@PathVariable Long userId, @RequestBody AddItemToCartDTO addItemToCartDTO) {
+        cartService.addItem(userId, addItemToCartDTO.getProductId());
+        return ResponseEntity.ok().build();
     }
 
 }
