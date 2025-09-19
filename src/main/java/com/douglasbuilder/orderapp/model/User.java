@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 public class User {
 
     @Id
-    @GeneratedValue
     @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column
     private String firstName;
@@ -24,10 +24,7 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    public String fullName() {
+    public String getFullName() {
         return getFirstName() + " " + getLastName();
     }
-
-//    @OneToOne(mappedBy = "user")
-//    private Cart cart;
 }

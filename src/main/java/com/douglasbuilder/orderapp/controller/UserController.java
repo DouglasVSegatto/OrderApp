@@ -7,7 +7,6 @@ import com.douglasbuilder.orderapp.dto.user.UpdateUserDTO;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +20,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody CreateUserDTO createUserDTO) {
-        User user = userService.create(createUserDTO);
-        return ResponseEntity.status(201).body(user);
+    public ResponseEntity<?> createUser(@RequestBody CreateUserDTO createUserDTO) {
+        var user = userService.create(createUserDTO);
+        return ResponseEntity.status(201).body(new ApiResponse<>(user));
     }
 
     @GetMapping
@@ -46,28 +45,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserById(
-            @PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
-        User user = userService.updateById(id, updateUserDTO);
-        return ResponseEntity.ok().body(user);
-    }
-
-    @GetMapping("/email/{email}")
-    public ResponseEntity<User> findUserByEmail(@PathVariable String email) {
-        User user = userService.findByEmail(email);
-        return ResponseEntity.status(HttpStatus.FOUND).body(user);
-    }
-
-    @DeleteMapping("/email/{email}")
-    public ResponseEntity<?> deleteUserByEmail(@PathVariable String email) {
-        userService.deleteByEmail(email);
+    public ResponseEntity<?> updateUserById(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
+        userService.updateById(id, updateUserDTO);
         return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/email/{email}")
-    public ResponseEntity<?> updateUserByEmail(
-            @PathVariable String email, @RequestBody UpdateUserDTO updateUserDTO) {
-        User user = userService.updateByEmail(email, updateUserDTO);
-        return ResponseEntity.ok().body(user);
     }
 }

@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateNameException.class)
     public ResponseEntity<ApiErrorDTO> handleDuplicateNameException(DuplicateNameException e) {
         ApiErrorDTO error =
-                new ApiErrorDTO(LocalDateTime.now(), "Product name already in use.", e.getMessage());
+                new ApiErrorDTO(LocalDateTime.now(), "Product already registered", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 

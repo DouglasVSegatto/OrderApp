@@ -18,8 +18,8 @@ import java.util.UUID;
 public class Cart {
 
     @Id
-    @GeneratedValue
     @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
 
     @OneToOne

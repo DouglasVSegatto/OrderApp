@@ -26,7 +26,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User create(CreateUserDTO createUserDTO) {
+    public ResponseUserDTO create(CreateUserDTO createUserDTO) {
         boolean emailExists = userRepository.existsByEmail(createUserDTO.getEmail());
         if (emailExists) {
             throw new DuplicateEmailException("Email already in use: " + createUserDTO.getEmail());
@@ -35,37 +35,15 @@ public class UserService {
         // MapStruct will handle the mapping from CreateUserDTO to User entity
         User newUser = userMapper.toModel(createUserDTO);
 
-        return userRepository.save(newUser);
+        var createdUser = userRepository.save(newUser);
+
+        return userMapper.toDto(createdUser);
     }
 
     public ResponseUserDTO findById(Long id) {
-        //If a value is present(user), returns the user,
-        // otherwise throws an exception produced by the exception supplying function
-        // (in this case, a lambda function that creates a new UserNotFoundException with a message).
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
         return userMapper.toDto(user);
-    }
-
-    public void deleteById(Long id) {
-        boolean idExists = userRepository.existsById(id);
-        if (!idExists) {
-            throw new UserNotFoundException("No User found with ID: " + id);
-        }
-        userRepository.deleteById(id);
-    }
-
-    public User updateById(Long id, UpdateUserDTO updateUserDTO) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
-
-        if (updateUserDTO.getFirstName() != null) {
-            user.setFirstName(updateUserDTO.getFirstName());
-        }
-        if (updateUserDTO.getLastName() != null) {
-            user.setLastName(updateUserDTO.getLastName());
-        }
-        return userRepository.save(user);
     }
 
     public User findByEmail(String email) {
@@ -76,19 +54,9 @@ public class UserService {
         return user;
     }
 
-    public void deleteByEmail(String email) {
-        boolean emailExists = userRepository.existsByEmail(email);
-        if (!emailExists) {
-            throw new UserNotFoundException("No User found with email: " + email);
-        }
-        userRepository.deleteByEmail(email);
-    }
-
-    public User updateByEmail(String email, UpdateUserDTO updateUserDTO) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new UserNotFoundException("No User found with email: " + email);
-        }
+    public void updateById(Long id, UpdateUserDTO updateUserDTO) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
 
         if (updateUserDTO.getFirstName() != null) {
             user.setFirstName(updateUserDTO.getFirstName());
@@ -96,6 +64,18 @@ public class UserService {
         if (updateUserDTO.getLastName() != null) {
             user.setLastName(updateUserDTO.getLastName());
         }
-        return userRepository.save(user);
+
+        var userUpdated = userRepository.save(user);
+
+        userMapper.toDto(userUpdated);
     }
+
+    public void deleteById(Long id) {
+        boolean idExists = userRepository.existsById(id);
+        if (!idExists) {
+            throw new UserNotFoundException("No User found with ID: " + id);
+        }
+        userRepository.deleteById(id);
+    }
+
 }
