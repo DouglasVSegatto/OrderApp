@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Slf4j
@@ -40,6 +39,8 @@ public class CartService {
         return userCart;
     }
 
+    //TODO Consideramos que sistema so da opcao se o product ta available ou tem quantidade? fazer validacao?
+    // Criar um method que da a resposta parece mais viavel como seria checado varias vezes
     public void addItem(Long userId, Long productId) {
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("ID: " + productId));
@@ -64,6 +65,8 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+
+    //TODO Return product quantity
     public void deleteItem(Long userId, Long itemId) {
         Cart cart = getCartByUserId(userId);
 
@@ -90,12 +93,27 @@ public class CartService {
         return cartRepository.save(newCart);
     }
 
+    //TODO Restore products quantity (if any)
     @Transactional
     public void deleteCart(Long userId){
         if (!cartRepository.existsByUserId(userId)){
             throw new UserNotFoundException("ID: " + userId);
         }
         cartRepository.deleteCartByUser_Id(userId);
+    }
+
+    //TODO Validate product available and quantity
+    @Transactional
+    public CartItem updateCartItem(Long userId, Long itemId, Integer quantity){
+        Cart cart = getCartByUserId(userId);
+
+        CartItem cartItem = cart.getCartItems().stream()
+                .filter(item -> item.getId().equals(itemId))
+                .findFirst().orElseThrow(() -> new CartItemNotFoundException("ID: " + itemId));
+
+        cartItem.setQuantity(quantity);
+        cartRepository.save(cart);
+        return cartItem;
     }
 
 }

@@ -13,7 +13,7 @@ public interface CartMapper {
 
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "userName", source = "user.firstName")
-    CartResponseDTO tocartResponseDTO(Cart cart);
+    CartResponseDTO toCartResponseDTO(Cart cart);
 
     @Mapping(target = "productId", source = "product.id")
     @Mapping(target = "productSku", source = "product.sku")
