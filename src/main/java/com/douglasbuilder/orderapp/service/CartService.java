@@ -12,6 +12,7 @@ import com.douglasbuilder.orderapp.repository.CartItemRepository;
 import com.douglasbuilder.orderapp.repository.CartRepository;
 import com.douglasbuilder.orderapp.repository.ProductRepository;
 import com.douglasbuilder.orderapp.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,6 +90,7 @@ public class CartService {
         return cartRepository.save(newCart);
     }
 
+    @Transactional
     public void deleteCart(Long userId){
         if (!cartRepository.existsByUserId(userId)){
             throw new UserNotFoundException("ID: " + userId);

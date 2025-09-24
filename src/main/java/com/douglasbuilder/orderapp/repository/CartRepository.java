@@ -5,6 +5,8 @@ import com.douglasbuilder.orderapp.model.OrderItem;
 import com.douglasbuilder.orderapp.model.User;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -18,5 +20,6 @@ public interface CartRepository  extends JpaRepository<Cart, Long> {
 
     boolean existsByUserId(Long userId);
 
+    @Modifying
     void deleteCartByUser_Id(Long userId);
 }
