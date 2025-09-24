@@ -4,6 +4,7 @@ import com.douglasbuilder.orderapp.exceptions.cart.CartNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemProductAlreadyExists;
 import com.douglasbuilder.orderapp.exceptions.product.ProductNotFoundException;
+import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.Product;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Slf4j
@@ -61,11 +63,16 @@ public class CartService {
         cartRepository.save(cart);
     }
 
-    public void deleteItem(Long userId, Long id) {
-        if (!cartItemRepository.existsById(id)) {
-            throw new CartItemNotFoundException("Cart Item not found with ID: " + id);
-        }
-        cartItemRepository.deleteCartItemById(id);
+    public void deleteItem(Long userId, Long itemId) {
+        Cart cart = getCartByUserId(userId);
+
+        CartItem cartItem = cart.getCartItems().stream()
+                .filter(item -> item.getId().equals(itemId))
+                .findFirst().orElseThrow(() -> new CartItemNotFoundException("ID: " + itemId));
+
+        cart.getCartItems().remove(cartItem);
+        cartRepository.save(cart);
+
     }
 
     private Cart getOrCreateCart(Long userId) {
@@ -80,6 +87,13 @@ public class CartService {
         newCart.setUser(user);
         newCart.setCartItems(new ArrayList<>());
         return cartRepository.save(newCart);
+    }
+
+    public void deleteCart(Long userId){
+        if (!cartRepository.existsByUserId(userId)){
+            throw new UserNotFoundException("ID: " + userId);
+        }
+        cartRepository.deleteCartByUser_Id(userId);
     }
 
 }

@@ -4,6 +4,7 @@ import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.dto.product.CreateProductDTO;
 import com.douglasbuilder.orderapp.dto.product.UpdateProductDTO;
 import com.douglasbuilder.orderapp.model.Product;
+import com.douglasbuilder.orderapp.service.CartService;
 import com.douglasbuilder.orderapp.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
 
     private final ProductService productService;
+    private final CartService cartService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, CartService cartService) {
         this.productService = productService;
+        this.cartService = cartService;
     }
 
     @GetMapping
@@ -51,7 +54,9 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        productService.delete(id);
+        cartService.deleteCart(id);
         return ResponseEntity.ok().build();
     }
+
+
 }
