@@ -1,5 +1,6 @@
 package com.douglasbuilder.orderapp.service;
 
+import com.douglasbuilder.orderapp.dto.cart.CartResponseDTO;
 import com.douglasbuilder.orderapp.exceptions.cart.CartNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemProductAlreadyExists;
@@ -7,6 +8,7 @@ import com.douglasbuilder.orderapp.exceptions.cartitem.InvalidCartItemQuantityEx
 import com.douglasbuilder.orderapp.exceptions.product.ProductNotAvailable;
 import com.douglasbuilder.orderapp.exceptions.product.ProductNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
+import com.douglasbuilder.orderapp.mappers.CartMapper;
 import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.Product;
@@ -20,7 +22,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Slf4j
@@ -32,6 +36,7 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final CartMapper cartMapper;
 
     private Cart findCartByUserIdOrThrow(Long userId) {
         Cart userCart = cartRepository.findByUserId(userId);
@@ -41,8 +46,23 @@ public class CartService {
         return userCart;
     }
 
-    public Cart getCartByUserId(Long userId) {
-        return findCartByUserIdOrThrow(userId);
+    private BigDecimal calculateCartTotal(Long userId){
+
+        List<CartItem> userCartItemList = findCartByUserIdOrThrow(userId).getCartItems();
+
+        BigDecimal cartTotal = BigDecimal.valueOf(0);
+
+        for (CartItem item: userCartItemList){
+            cartTotal = cartTotal.add(item.getPrice());
+        }
+        return cartTotal;
+    }
+
+    public CartResponseDTO getCartWithTotal(Long userId){
+        Cart userCart = findCartByUserIdOrThrow(userId);
+        CartResponseDTO cartResponseDTO = cartMapper.toCartResponseDTO(userCart);
+        cartResponseDTO.setTotal(calculateCartTotal(userId));
+        return cartResponseDTO;
     }
 
     public void addItem(Long userId, Long productId) {

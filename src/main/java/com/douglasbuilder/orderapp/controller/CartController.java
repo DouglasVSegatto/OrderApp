@@ -2,7 +2,6 @@ package com.douglasbuilder.orderapp.controller;
 
 import com.douglasbuilder.orderapp.dto.cart.UpdateCartItemQuantityDTO;
 import com.douglasbuilder.orderapp.mappers.CartMapper;
-import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.service.CartService;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +22,7 @@ public class CartController {
     // CART RELATED
     @GetMapping
     public ResponseEntity<?> getCart(@RequestParam Long userId) {
-        Cart userCart = cartService.getCartByUserId(userId);
-        return ResponseEntity.ok().body(cartMapper.toCartResponseDTO(userCart));
+        return ResponseEntity.ok().body(cartService.getCartWithTotal(userId));
     }
 
     @DeleteMapping
