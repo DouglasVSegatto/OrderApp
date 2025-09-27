@@ -34,14 +34,12 @@ public class CartController {
     }
 
     // CART ITEM RELATED
-    //TODO: Validate negative numbers in DTO
     @PostMapping("/items/{productId}")
     public ResponseEntity<?> addItem(@RequestParam Long userId, @PathVariable Long productId) {
         cartService.addItem(userId, productId);
         return ResponseEntity.ok().build();
     }
 
-    //TODO Validate negative numbers in DTO
     @DeleteMapping("/items/{itemID}")
     public ResponseEntity<?> deleteItem(@RequestParam Long userId, @PathVariable Long itemID) {
         cartService.deleteItem(userId, itemID);
