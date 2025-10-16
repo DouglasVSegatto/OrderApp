@@ -73,38 +73,38 @@ public class GlobalExceptionHandler {
 
     //Cart
     @ExceptionHandler(CartException.class)
-    public ResponseEntity<ApiErrorDTO> handleCartException(CartException e){
+    public ResponseEntity<ApiErrorDTO> handleCartException(CartException e) {
         ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Internal Error", e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler(CartNotFoundException.class)
-    public ResponseEntity<ApiErrorDTO> handlerCartNotFoundException(CartNotFoundException e){
+    public ResponseEntity<ApiErrorDTO> handlerCartNotFoundException(CartNotFoundException e) {
         ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Cart not found", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     //CartItem
     @ExceptionHandler(CartItemException.class)
-    public ResponseEntity<ApiErrorDTO> handleCartItemException(CartItemException e){
+    public ResponseEntity<ApiErrorDTO> handleCartItemException(CartItemException e) {
         ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Internal Error", e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler(InvalidCartItemQuantityException.class)
-    public ResponseEntity<ApiErrorDTO> handlerInvalidCartItemQuantityException(InvalidCartItemQuantityException e){
+    public ResponseEntity<ApiErrorDTO> handlerInvalidCartItemQuantityException(InvalidCartItemQuantityException e) {
         ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Invalid Cart Item Quantity", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(CartItemProductAlreadyExists.class)
-    public ResponseEntity<ApiErrorDTO> handlerCartItemProductAlreadyExists(CartItemProductAlreadyExists e){
+    public ResponseEntity<ApiErrorDTO> handlerCartItemProductAlreadyExists(CartItemProductAlreadyExists e) {
         ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Product already in cart", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(CartItemNotFoundException.class)
-    public ResponseEntity<ApiErrorDTO> handlerCartItemNotFoundException(CartItemNotFoundException e){
+    public ResponseEntity<ApiErrorDTO> handlerCartItemNotFoundException(CartItemNotFoundException e) {
         ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Cart Item not found", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
