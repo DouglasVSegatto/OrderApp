@@ -54,7 +54,7 @@ public class CartService {
         BigDecimal cartTotal = BigDecimal.valueOf(0);
 
         for (CartItem item: userCartItemList){
-            cartTotal = cartTotal.add(item.getPrice());
+            cartTotal = cartTotal.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         }
         return cartTotal;
     }
@@ -150,7 +150,7 @@ public class CartService {
     @Transactional
     public void updateCartStatus(Long userId, String newStatus){
         Cart cart = findCartByUserIdOrThrow(userId);
-        cart.setStatus(StatusCard.valueOf(newStatus));
+        cart.setStatus(StatusCard.valueOf(newStatus.toUpperCase()));
         cartRepository.save(cart);
     }
 
