@@ -12,6 +12,7 @@ import com.douglasbuilder.orderapp.mappers.CartMapper;
 import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.Product;
+import com.douglasbuilder.orderapp.model.enumetations.StatusCard;
 import com.douglasbuilder.orderapp.repository.CartItemRepository;
 import com.douglasbuilder.orderapp.repository.CartRepository;
 import com.douglasbuilder.orderapp.repository.ProductRepository;
@@ -144,6 +145,13 @@ public class CartService {
         cartItem.setQuantity(quantity);
         cartRepository.save(cart);
         return cartItem;
+    }
+
+    @Transactional
+    public void updateCartStatus(Long userId, String newStatus){
+        Cart cart = findCartByUserIdOrThrow(userId);
+        cart.setStatus(StatusCard.valueOf(newStatus));
+        cartRepository.save(cart);
     }
 
 }

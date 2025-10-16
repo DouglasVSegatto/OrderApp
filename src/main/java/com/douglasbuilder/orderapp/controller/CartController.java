@@ -1,9 +1,9 @@
 package com.douglasbuilder.orderapp.controller;
 
-import com.douglasbuilder.orderapp.dto.cart.UpdateCartItemQuantityDTO;
 import com.douglasbuilder.orderapp.mappers.CartMapper;
 import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.service.CartService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,41 +22,39 @@ public class CartController {
     // CART RELATED
     @GetMapping
     public ResponseEntity<?> getCart(@RequestParam Long userId) {
-        return ResponseEntity.ok().body(cartService.getCartWithTotal(userId));
+        return ResponseEntity.status(HttpStatus.OK).body(cartService.getCartWithTotal(userId));
     }
 
     @DeleteMapping
     public ResponseEntity<?> deleteCart(@RequestParam Long userId){
         cartService.deleteCart(userId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/status/{newStatus}")
+    public ResponseEntity<?> updateCartStatus(@RequestParam Long userId, @PathVariable String newStatus){
+        cartService.updateCartStatus(userId, newStatus);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     // CART ITEM RELATED
+
     @PostMapping("/items/{productId}")
     public ResponseEntity<?> addItem(@RequestParam Long userId, @PathVariable Long productId) {
         cartService.addItem(userId, productId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/items/{itemId}")
     public ResponseEntity<?> deleteItem(@RequestParam Long userId, @PathVariable Long itemId) {
         cartService.deleteItem(userId, itemId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    //TODO - Validate negative numbers in DTO
-    @PutMapping("/items/{itemId}")
-    public ResponseEntity<?> updateItem(@RequestParam Long userId, @PathVariable Long itemId, @RequestBody UpdateCartItemQuantityDTO quantityDTO){
-        CartItem userCartItemUpdated = cartService.updateCartItem(userId, itemId, quantityDTO.getQuantity());
-        return ResponseEntity.ok().body(cartMapper.toCartItemResponseDTO(userCartItemUpdated));
-    }
-
-    //TODO - Validate negative numbers in DTO
-    // duplicada com o decima, eu prefiro esse pois quantiydade e a unica coisa que a gente vai atualizar atraver do cartitem
     @PutMapping("/items/{itemId}/quantity/{newQuantity}")
-    public ResponseEntity<?> updateItemQuantity(@RequestParam Long userId, @PathVariable Long itemId, Integer newQuantity){
+    public ResponseEntity<?> updateItemQuantity(@RequestParam Long userId, @PathVariable Long itemId, @PathVariable Integer newQuantity){
         CartItem userCartItemUpdated = cartService.updateCartItem(userId, itemId, newQuantity);
-        return ResponseEntity.ok().body(cartMapper.toCartItemResponseDTO(userCartItemUpdated));
+        return ResponseEntity.status(HttpStatus.OK).body(cartMapper.toCartItemResponseDTO(userCartItemUpdated));
     }
 
 }
