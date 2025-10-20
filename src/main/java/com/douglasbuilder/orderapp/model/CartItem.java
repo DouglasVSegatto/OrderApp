@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -30,9 +31,7 @@ public class CartItem {
     @NotNull
     private Product product;
 
-    @NotNull
-    private BigDecimal price; // or current_price (total_price should be only in cart)
-
+    @Column
     private Integer quantity;
 
     @ManyToOne // Many cartitems can point to one cart

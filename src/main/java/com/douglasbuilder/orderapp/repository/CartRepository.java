@@ -7,13 +7,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface CartRepository  extends JpaRepository<Cart, Long> {
-    Cart findByUserId(Long userId);
-    Long user(@NotNull User user);
+import java.util.UUID;
 
-    boolean existsByUserId(Long userId);
+@Repository
+public interface CartRepository  extends JpaRepository<Cart, UUID> {
+    Cart findByUserId(UUID userId);
+    UUID user(@NotNull User user);
+
+    boolean existsByUserId(UUID userId);
 
     @Modifying
-    void deleteCartByUser_Id(Long userId);
+    void deleteCartByUser_Id(UUID userId);
 }

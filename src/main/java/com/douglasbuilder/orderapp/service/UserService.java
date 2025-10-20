@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Service
@@ -40,7 +41,7 @@ public class UserService {
         return userMapper.toDto(createdUser);
     }
 
-    public ResponseUserDTO findById(Long id) {
+    public ResponseUserDTO findById(UUID id) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
         return userMapper.toDto(user);
@@ -54,7 +55,7 @@ public class UserService {
         return user;
     }
 
-    public void updateById(Long id, UpdateUserDTO updateUserDTO) {
+    public void updateById(UUID id, UpdateUserDTO updateUserDTO) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
 
@@ -70,7 +71,7 @@ public class UserService {
         userMapper.toDto(userUpdated);
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(UUID id) {
         boolean idExists = userRepository.existsById(id);
         if (!idExists) {
             throw new UserNotFoundException("No User found with ID: " + id);

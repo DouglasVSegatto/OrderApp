@@ -10,8 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/product")
 public class ProductController {
 
     private final ProductService productService;
@@ -35,7 +37,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> find(@PathVariable Long id) {
+    public ResponseEntity<?> find(@PathVariable UUID id) {
         Product product = productService.find(id);
         return ResponseEntity.ok(product);
     }
@@ -47,13 +49,13 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody UpdateProductDTO updateProductDTO) {
+    public ResponseEntity<Product> update(@PathVariable UUID id, @RequestBody UpdateProductDTO updateProductDTO) {
         Product product = productService.update(id, updateProductDTO);
         return ResponseEntity.status(HttpStatus.OK).body(product);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable UUID id) {
         cartService.deleteCart(id);
         return ResponseEntity.ok().build();
     }

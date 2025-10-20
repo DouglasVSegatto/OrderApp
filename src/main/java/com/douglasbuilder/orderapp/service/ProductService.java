@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Service
@@ -30,12 +31,12 @@ public class ProductService {
         return productRepository.getAllByAvailableTrue();
     }
 
-    public Product find(Long id) {
+    public Product find(UUID id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + id));
     }
 
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if (!productRepository.existsById(id)) {
             throw new ProductNotFoundException("Product not found with ID: " + id);
         }
@@ -53,7 +54,7 @@ public class ProductService {
         return productRepository.save(newProduct);
     }
 
-    public Product update(Long id, UpdateProductDTO updateProductDTO) {
+    public Product update(UUID id, UpdateProductDTO updateProductDTO) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Product ID not found"));
 

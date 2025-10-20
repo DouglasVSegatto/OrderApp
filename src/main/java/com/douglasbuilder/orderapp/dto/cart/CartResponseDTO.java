@@ -17,7 +17,7 @@ import java.util.UUID;
 public class CartResponseDTO {
 
     private UUID id;
-    private Long userId;
+    private UUID userId;
     private String userName;
     private StatusCard status;
     private BigDecimal total;

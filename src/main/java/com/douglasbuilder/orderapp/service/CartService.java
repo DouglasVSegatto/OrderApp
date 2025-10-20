@@ -18,14 +18,12 @@ import com.douglasbuilder.orderapp.repository.CartRepository;
 import com.douglasbuilder.orderapp.repository.ProductRepository;
 import com.douglasbuilder.orderapp.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.UUID;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Slf4j
@@ -38,35 +36,24 @@ public class CartService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final CartMapper cartMapper;
+    private final PriceCalculationService priceCalculationService;
 
-    private Cart findCartByUserIdOrThrow(Long userId) {
+    public Cart findCartByUserIdOrThrow(UUID userId) {
         Cart userCart = cartRepository.findByUserId(userId);
         if (userCart == null) {
-            throw new CartNotFoundException("ID: " + userId);
+            throw new CartNotFoundException("User has no Cart, ID:" + userId);
         }
         return userCart;
     }
 
-    private BigDecimal calculateCartTotal(Long userId){
-
-        List<CartItem> userCartItemList = findCartByUserIdOrThrow(userId).getCartItems();
-
-        BigDecimal cartTotal = BigDecimal.valueOf(0);
-
-        for (CartItem item: userCartItemList){
-            cartTotal = cartTotal.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-        }
-        return cartTotal;
-    }
-
-    public CartResponseDTO getCartWithTotal(Long userId){
+    public CartResponseDTO getCartWithTotal(UUID userId){
         Cart userCart = findCartByUserIdOrThrow(userId);
-        CartResponseDTO cartResponseDTO = cartMapper.toCartResponseDTO(userCart);
-        cartResponseDTO.setTotal(calculateCartTotal(userId));
-        return cartResponseDTO;
+        CartResponseDTO dto = cartMapper.toCartResponseDTO(userCart);
+        dto.setTotal(priceCalculationService.calculateCartTotal(userCart.getCartItems()));
+        return dto;
     }
 
-    public void addItem(Long userId, Long productId) {
+    public void addItem(UUID userId, UUID productId) {
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("ID: " + productId));
 
@@ -85,7 +72,6 @@ public class CartService {
         var cartItem = CartItem.builder()
                 .product(product)
                 .quantity(1)
-                .price(product.getPrice())
                 .cart(cart)
                 .build();
 
@@ -95,7 +81,7 @@ public class CartService {
     }
 
 
-    public void deleteItem(Long userId, Long itemId) {
+    public void deleteItem(UUID userId, Long itemId) {
         Cart cart = findCartByUserIdOrThrow(userId);
 
         CartItem cartItem = cart.getCartItems().stream()
@@ -107,7 +93,7 @@ public class CartService {
 
     }
 
-    private Cart getOrCreateCart(Long userId) {
+    private Cart getOrCreateCart(UUID userId) {
         Cart cart = cartRepository.findByUserId(userId);
         if (cart != null) {
             return cart;
@@ -122,7 +108,7 @@ public class CartService {
     }
 
     @Transactional
-    public void deleteCart(Long userId){
+    public void deleteCart(UUID userId){
         if (!cartRepository.existsByUserId(userId)){
             throw new UserNotFoundException("ID: " + userId);
         }
@@ -130,7 +116,7 @@ public class CartService {
     }
 
     @Transactional
-    public CartItem updateCartItem(Long userId, Long itemId, Integer quantity){
+    public CartItem updateCartItem(UUID userId, Long itemId, Integer quantity){
 
         if (quantity <= 0){
             throw new InvalidCartItemQuantityException("Quantity: " + quantity);
@@ -148,7 +134,7 @@ public class CartService {
     }
 
     @Transactional
-    public void updateCartStatus(Long userId, String newStatus){
+    public void updateCartStatus(UUID userId, String newStatus){
         Cart cart = findCartByUserIdOrThrow(userId);
         cart.setStatus(StatusCard.valueOf(newStatus.toUpperCase()));
         cartRepository.save(cart);

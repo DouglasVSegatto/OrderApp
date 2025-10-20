@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ResponseUserDTO>> findUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ResponseUserDTO>> findUserById(@PathVariable UUID id) {
         var user = userService.findById(id);
 
         //TODO criei esse ApiResponse para padronizar as respostas da API
@@ -39,13 +40,13 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUserById(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUserById(@PathVariable UUID id) {
         userService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserById(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
+    public ResponseEntity<?> updateUserById(@PathVariable UUID id, @RequestBody UpdateUserDTO updateUserDTO) {
         userService.updateById(id, updateUserDTO);
         return ResponseEntity.ok().build();
     }
