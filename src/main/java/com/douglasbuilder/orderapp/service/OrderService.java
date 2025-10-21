@@ -23,9 +23,8 @@ public class OrderService {
   private final OrderMapper orderMapper;
   private final PriceCalculationService priceCalculationService;
 
-  public List<OrderResponseDTO> getOrdersByUserId(UUID userId) {
-    List<Order> orders = orderRepository.findAllByUserId(userId);
-    return orders.stream().map(orderMapper::toResponseDTO).toList();
+  public List<Order> getOrdersByUserId(UUID userId) {
+    return orderRepository.findAllByUserId(userId);
   }
 
   public Order getOrderById(UUID orderId) {

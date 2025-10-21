@@ -39,8 +39,4 @@ public class CartItem {
     @JsonBackReference
     private Cart cart;
 
-    public void deleteItem(Long itemId){
-
-    }
-
 }

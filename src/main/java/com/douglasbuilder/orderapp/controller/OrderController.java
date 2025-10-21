@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +20,7 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<?> getUserOrders(@RequestParam UUID userId) {
-        List<OrderResponseDTO> orders = orderService.getOrdersByUserId(userId);
+        List<Order> orders = orderService.getOrdersByUserId(userId);
         return ResponseEntity.ok(orders);
     }
 
