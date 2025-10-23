@@ -46,6 +46,11 @@ public class CartService {
         return userCart;
     }
 
+    public Cart findCartById(UUID cartId){
+        return cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException("Cart ID Not found"));
+    }
+
+
     public CartResponseDTO getCartWithTotal(UUID userId){
         Cart userCart = findCartByUserIdOrThrow(userId);
         CartResponseDTO dto = cartMapper.toCartResponseDTO(userCart);

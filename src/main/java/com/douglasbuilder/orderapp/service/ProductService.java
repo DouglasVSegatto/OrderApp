@@ -85,11 +85,11 @@ public class ProductService {
         Product product = find(productId);
 
         if (!product.getAvailable()){
-            throw new ProductInsufficientStockException("Is not available");
+            throw new ProductInsufficientStockException("Product is not available");
         }
 
         if (product.getQuantityInStock() < quantity){
-            throw new ProductInsufficientStockException("Product unavailable or insufficient stock");
+            throw new ProductInsufficientStockException("Product insufficient stock");
         }
 
         product.setQuantityInStock(product.getQuantityInStock() - quantity);

@@ -22,11 +22,18 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+  @PostMapping("/{cartId}/create")
+  public ResponseEntity<?> createOrder(@PathVariable UUID cartId) {
+        orderService.createOrder(cartId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrder(@PathVariable UUID orderId) {
         Order order = orderService.getOrderById(orderId);
         return ResponseEntity.ok(order);
     }
+
 
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable UUID orderId) {
@@ -39,12 +46,6 @@ public class OrderController {
         orderService.payOrder(orderId);
         return ResponseEntity.ok().build();
     }
-
-//    @PostMapping
-//    public ResponseEntity<?> createOrder(@RequestParam UUID userId){
-//        Order newOrder = orderService.createOrderFromCart(userId);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(newOrder);
-//    }
 
     @DeleteMapping("/delete/{orderId}")
     public ResponseEntity<?> deleteOrderById(@PathVariable UUID orderId){

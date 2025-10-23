@@ -2,6 +2,7 @@ package com.douglasbuilder.orderapp.service;
 
 import com.douglasbuilder.orderapp.exceptions.order.OrderAlreadyProcessedException;
 import com.douglasbuilder.orderapp.exceptions.order.OrderNotFoundException;
+import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.Order;
 import com.douglasbuilder.orderapp.model.enumetations.OrderStatus;
@@ -78,22 +79,42 @@ public class OrderService {
     order.setLastUpdate(LocalDateTime.now());
     orderRepository.save(order);
   }
-//TODO Review this process later
-//  @Transactional
-//  public Order createOrderFromCart(UUID userId) {
-//    Cart userCart = cartService.findCartByUserIdOrThrow(userId);
-//
-//    Order order = orderMapper.cartToOrder(userCart);
-//
-//    order.getCart().getCartItems().forEach(cartItem -> cartItem.setCart(order));
-//
-//    order.setTotal(priceCalculationService.calculateOrderTotal(order.getOrderDetails()));
-//
-//    return orderRepository.save(order);
-//
-//  }
 
-  public void deleteOrderById(UUID orderId){
+  @Transactional
+  public void createOrder(UUID cartId) {
+    Cart cart = cartService.findCartById(cartId);
+
+//    Order order = new Order();
+//    order.setCart(cart);
+//    order.setUser(cart.getUser());
+//    order.setStatus(OrderStatus.PENDING);
+//    order.setCreatedAt(LocalDateTime.now());
+//    order.setLastUpdate(LocalDateTime.now());
+//    order.setTotal(priceCalculationService.calculateCartTotal(cart.getCartItems()));
+    Order order = Order.builder()
+            .cart(cart)
+            .user(cart.getUser())
+            .status(OrderStatus.PENDING)
+            .createdAt(LocalDateTime.now())
+            .lastUpdate(LocalDateTime.now())
+            .total(priceCalculationService.calculateCartTotal(cart.getCartItems()))
+            .build();
+
+    orderRepository.save(order);
+  }
+
+  //
+  //    Order order = orderMapper.cartToOrder(userCart);
+  //
+  //    order.getCart().getCartItems().forEach(cartItem -> cartItem.setCart(order));
+  //
+  //    order.setTotal(priceCalculationService.calculateOrderTotal(order.getOrderDetails()));
+  //
+  //    return orderRepository.save(order);
+  //
+  //  }
+
+  public void deleteOrderById(UUID orderId) {
     orderRepository.delete(getOrderById(orderId));
   }
 
