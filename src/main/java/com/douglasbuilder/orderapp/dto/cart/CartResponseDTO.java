@@ -18,8 +18,8 @@ public class CartResponseDTO {
 
     private UUID id;
     private UUID userId;
-    private String userName;
     private CartStatus status;
+    private String userName;
     private BigDecimal total;
     private List<CartItem> cartItems = new ArrayList<>();
 

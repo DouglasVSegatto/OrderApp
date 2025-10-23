@@ -1,11 +1,13 @@
 package com.douglasbuilder.orderapp.service;
 
 import com.douglasbuilder.orderapp.exceptions.order.OrderAlreadyProcessedException;
+import com.douglasbuilder.orderapp.exceptions.order.OrderCancellationNotAllowedException;
 import com.douglasbuilder.orderapp.exceptions.order.OrderNotFoundException;
 import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.Order;
-import com.douglasbuilder.orderapp.model.enumetations.OrderStatus;
+import com.douglasbuilder.orderapp.model.enumetations.CartStatus;
+import com.douglasbuilder.orderapp.repository.CartRepository;
 import com.douglasbuilder.orderapp.repository.OrderRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +24,7 @@ public class OrderService {
   private final CartService cartService;
   private final PriceCalculationService priceCalculationService;
   private final ProductService productService;
+  private final CartRepository cartRepository;
 
   public List<Order> getOrdersByUserId(UUID userId) {
     return orderRepository.findAllByUserId(userId);
@@ -33,86 +36,65 @@ public class OrderService {
   }
 
   @Transactional
-  public void updateOrderStatus(UUID orderId, String newStatus) {
-    Order order =
-        orderRepository
-            .findById(orderId)
-            .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
-
-    order.setStatus(OrderStatus.valueOf(newStatus.toUpperCase()));
-    order.setLastUpdate(LocalDateTime.now());
-    orderRepository.save(order);
-  }
-
-  @Transactional
   public void cancelOrder(UUID orderId) {
     Order order =
             orderRepository
                     .findById(orderId)
                     .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
 
-//    if (order.getStatus().equals(OrderStatus.COMPLETED)){
-//      //RETURN ITEMS TO STOCK
-//
-//    }
-    order.setStatus(OrderStatus.CANCELLED);
+    if (order.getCart().getStatus() != CartStatus.PAID){
+      throw new OrderCancellationNotAllowedException("Only paid orders can be cancelled");
+    }
+
+    //TODO return items to product as it was cancelled.
+
+    //Update cart status and save
+    order.getCart().setStatus(CartStatus.CANCELLED);
+    cartService.saveCart(order.getCart());
+
+    //Update order time and save
     order.setLastUpdate(LocalDateTime.now());
     orderRepository.save(order);
   }
 
   @Transactional
-  public void payOrder(UUID orderId) {
-    Order order =
-            orderRepository
-                    .findById(orderId)
-                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
+  public void payOrder(UUID cartId) {
+    Cart cart =
+            cartRepository
+                    .findById(cartId)
+                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + cartId));
 
-    if (!order.getStatus().equals(OrderStatus.PAID)){
+    if (cart.getStatus().equals(CartStatus.PAID)){
       throw new OrderAlreadyProcessedException("Order already processed");
     }
 
-    for (CartItem item : order.getCart().getCartItems()){
+    Order order = createOrder(cart);
+
+    for (CartItem item : cart.getCartItems()){
       productService.reduceStock(item.getProduct().getId(), item.getQuantity());
     }
+    //Update cart status and save
+    cart.setStatus(CartStatus.PAID);
+    cartService.saveCart(cart);
 
-    order.setStatus(OrderStatus.PAID);
+    //Update order time and save
+    order.setCreatedAt(LocalDateTime.now());
     order.setLastUpdate(LocalDateTime.now());
     orderRepository.save(order);
+
   }
 
   @Transactional
-  public void createOrder(UUID cartId) {
-    Cart cart = cartService.findCartById(cartId);
+  public Order createOrder(Cart cart) {
 
-//    Order order = new Order();
-//    order.setCart(cart);
-//    order.setUser(cart.getUser());
-//    order.setStatus(OrderStatus.PENDING);
-//    order.setCreatedAt(LocalDateTime.now());
-//    order.setLastUpdate(LocalDateTime.now());
-//    order.setTotal(priceCalculationService.calculateCartTotal(cart.getCartItems()));
-    Order order = Order.builder()
+    return Order.builder()
             .cart(cart)
             .user(cart.getUser())
-            .status(OrderStatus.PENDING)
             .createdAt(LocalDateTime.now())
             .lastUpdate(LocalDateTime.now())
             .total(priceCalculationService.calculateCartTotal(cart.getCartItems()))
             .build();
-
-    orderRepository.save(order);
   }
-
-  //
-  //    Order order = orderMapper.cartToOrder(userCart);
-  //
-  //    order.getCart().getCartItems().forEach(cartItem -> cartItem.setCart(order));
-  //
-  //    order.setTotal(priceCalculationService.calculateOrderTotal(order.getOrderDetails()));
-  //
-  //    return orderRepository.save(order);
-  //
-  //  }
 
   public void deleteOrderById(UUID orderId) {
     orderRepository.delete(getOrderById(orderId));

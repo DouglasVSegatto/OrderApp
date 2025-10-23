@@ -1,6 +1,5 @@
 package com.douglasbuilder.orderapp.model;
 
-import com.douglasbuilder.orderapp.model.enumetations.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -32,10 +31,6 @@ public class Order {
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
-
-    @Column
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
 
     @Column
     private LocalDateTime createdAt;

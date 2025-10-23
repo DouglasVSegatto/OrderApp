@@ -22,32 +22,25 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
-  @PostMapping("/{cartId}/create")
-  public ResponseEntity<?> createOrder(@PathVariable UUID cartId) {
-        orderService.createOrder(cartId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrder(@PathVariable UUID orderId) {
         Order order = orderService.getOrderById(orderId);
         return ResponseEntity.ok(order);
     }
 
-
     @PostMapping("/{orderId}/cancel")
-    public ResponseEntity<?> cancelOrder(@PathVariable UUID orderId) {
-        orderService.cancelOrder(orderId);
+    public ResponseEntity<?> cancelOrder(@PathVariable UUID cartId) {
+        orderService.cancelOrder(cartId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{orderId}/pay")
-    public ResponseEntity<?> payOrder(@PathVariable UUID orderId) {
-        orderService.payOrder(orderId);
+    @PostMapping("/{cartId}/pay")
+    public ResponseEntity<?> payOrder(@PathVariable UUID cartId) {
+        orderService.payOrder(cartId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/delete/{orderId}")
+    @DeleteMapping("/{orderId}/delete")
     public ResponseEntity<?> deleteOrderById(@PathVariable UUID orderId){
         orderService.deleteOrderById(orderId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

@@ -24,10 +24,15 @@ public class Cart {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
+
     @OneToOne
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private CartStatus status;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -37,7 +42,4 @@ public class Cart {
     @JsonBackReference
     private Order order;
 
-    @Column
-    @Enumerated(EnumType.STRING)
-    private CartStatus status;
 }

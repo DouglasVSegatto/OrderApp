@@ -109,6 +109,7 @@ public class CartService {
         Cart newCart = new Cart();
         newCart.setUser(user);
         newCart.setCartItems(new ArrayList<>());
+        newCart.setStatus(CartStatus.ACTIVE);
         return cartRepository.save(newCart);
     }
 
@@ -142,6 +143,10 @@ public class CartService {
     public void updateCartStatus(UUID userId, String newStatus){
         Cart cart = findCartByUserIdOrThrow(userId);
         cart.setStatus(CartStatus.valueOf(newStatus.toUpperCase()));
+        cartRepository.save(cart);
+    }
+
+    public  void saveCart(Cart cart){
         cartRepository.save(cart);
     }
 
