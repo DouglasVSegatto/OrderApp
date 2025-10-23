@@ -1,7 +1,7 @@
 package com.douglasbuilder.orderapp.dto.cart;
 
 import com.douglasbuilder.orderapp.model.CartItem;
-import com.douglasbuilder.orderapp.model.enumetations.StatusCard;
+import com.douglasbuilder.orderapp.model.enumetations.CartStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ public class CartResponseDTO {
     private UUID id;
     private UUID userId;
     private String userName;
-    private StatusCard status;
+    private CartStatus status;
     private BigDecimal total;
     private List<CartItem> cartItems = new ArrayList<>();
 

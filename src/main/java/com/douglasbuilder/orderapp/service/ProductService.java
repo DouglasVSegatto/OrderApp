@@ -3,17 +3,17 @@ package com.douglasbuilder.orderapp.service;
 import com.douglasbuilder.orderapp.dto.product.CreateProductDTO;
 import com.douglasbuilder.orderapp.dto.product.UpdateProductDTO;
 import com.douglasbuilder.orderapp.exceptions.product.DuplicateNameException;
+import com.douglasbuilder.orderapp.exceptions.product.ProductInsufficientStockException;
 import com.douglasbuilder.orderapp.exceptions.product.ProductNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.mappers.ProductMapper;
 import com.douglasbuilder.orderapp.model.Product;
 import com.douglasbuilder.orderapp.repository.ProductRepository;
+import java.util.List;
+import java.util.UUID;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
 
 @Data
 @Service
@@ -78,6 +78,26 @@ public class ProductService {
         }
 
         return productRepository.save(product);
+
     }
 
+    public void reduceStock(UUID productId, Integer quantity){
+        Product product = find(productId);
+
+        if (!product.getAvailable()){
+            throw new ProductInsufficientStockException("Is not available");
+        }
+
+        if (product.getQuantityInStock() < quantity){
+            throw new ProductInsufficientStockException("Product unavailable or insufficient stock");
+        }
+
+        product.setQuantityInStock(product.getQuantityInStock() - quantity);
+
+        if (product.getQuantityInStock() == 0){
+            product.setAvailable(false);
+        }
+
+        productRepository.save(product);
+  }
 }

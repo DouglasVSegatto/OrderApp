@@ -1,9 +1,8 @@
 package com.douglasbuilder.orderapp.service;
 
-import com.douglasbuilder.orderapp.dto.order.OrderResponseDTO;
+import com.douglasbuilder.orderapp.exceptions.order.OrderAlreadyProcessedException;
 import com.douglasbuilder.orderapp.exceptions.order.OrderNotFoundException;
-import com.douglasbuilder.orderapp.mappers.OrderMapper;
-import com.douglasbuilder.orderapp.model.Cart;
+import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.Order;
 import com.douglasbuilder.orderapp.model.enumetations.OrderStatus;
 import com.douglasbuilder.orderapp.repository.OrderRepository;
@@ -20,8 +19,8 @@ public class OrderService {
 
   private final OrderRepository orderRepository;
   private final CartService cartService;
-  private final OrderMapper orderMapper;
   private final PriceCalculationService priceCalculationService;
+  private final ProductService productService;
 
   public List<Order> getOrdersByUserId(UUID userId) {
     return orderRepository.findAllByUserId(userId);
@@ -45,18 +44,54 @@ public class OrderService {
   }
 
   @Transactional
-  public Order createOrderFromCart(UUID userId) {
-    Cart userCart = cartService.findCartByUserIdOrThrow(userId);
+  public void cancelOrder(UUID orderId) {
+    Order order =
+            orderRepository
+                    .findById(orderId)
+                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
 
-    Order order = orderMapper.cartToOrder(userCart);
-
-    order.getOrderDetails().forEach(orderDetail -> orderDetail.setOrder(order));
-
-    order.setTotal(priceCalculationService.calculateOrderTotal(order.getOrderDetails()));
-
-    return orderRepository.save(order);
-
+//    if (order.getStatus().equals(OrderStatus.COMPLETED)){
+//      //RETURN ITEMS TO STOCK
+//
+//    }
+    order.setStatus(OrderStatus.CANCELLED);
+    order.setLastUpdate(LocalDateTime.now());
+    orderRepository.save(order);
   }
+
+  @Transactional
+  public void payOrder(UUID orderId) {
+    Order order =
+            orderRepository
+                    .findById(orderId)
+                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
+
+    if (!order.getStatus().equals(OrderStatus.PAID)){
+      throw new OrderAlreadyProcessedException("Order already processed");
+    }
+
+    for (CartItem item : order.getCart().getCartItems()){
+      productService.reduceStock(item.getProduct().getId(), item.getQuantity());
+    }
+
+    order.setStatus(OrderStatus.PAID);
+    order.setLastUpdate(LocalDateTime.now());
+    orderRepository.save(order);
+  }
+//TODO Review this process later
+//  @Transactional
+//  public Order createOrderFromCart(UUID userId) {
+//    Cart userCart = cartService.findCartByUserIdOrThrow(userId);
+//
+//    Order order = orderMapper.cartToOrder(userCart);
+//
+//    order.getCart().getCartItems().forEach(cartItem -> cartItem.setCart(order));
+//
+//    order.setTotal(priceCalculationService.calculateOrderTotal(order.getOrderDetails()));
+//
+//    return orderRepository.save(order);
+//
+//  }
 
   public void deleteOrderById(UUID orderId){
     orderRepository.delete(getOrderById(orderId));

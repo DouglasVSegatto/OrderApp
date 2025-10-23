@@ -1,16 +1,12 @@
 package com.douglasbuilder.orderapp.dto.order;
 
-import com.douglasbuilder.orderapp.model.OrderDetail;
-import com.douglasbuilder.orderapp.model.User;
+import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.enumetations.OrderStatus;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
+import lombok.Data;
 
 @Data
 public class OrderResponseDTO {
@@ -20,6 +16,6 @@ public class OrderResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdate;
     private BigDecimal total;
-    private List<OrderDetail> orderDetails;
+    private Cart cart;
 
 }

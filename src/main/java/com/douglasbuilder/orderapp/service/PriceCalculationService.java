@@ -1,12 +1,10 @@
 package com.douglasbuilder.orderapp.service;
 
 import com.douglasbuilder.orderapp.model.CartItem;
-import com.douglasbuilder.orderapp.model.OrderDetail;
 import com.douglasbuilder.orderapp.model.Product;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class PriceCalculationService {
@@ -21,9 +19,9 @@ public class PriceCalculationService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal calculateOrderTotal(List<OrderDetail> orderDetails) {
-        return orderDetails.stream()
-                .map(detail -> detail.getPriceAtTimeOfOrder().multiply(BigDecimal.valueOf(detail.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
+//    public BigDecimal calculateOrderTotal(List<OrderDetail> orderDetails) {
+//        return orderDetails.stream()
+//                .map(detail -> detail.getPriceAtTimeOfOrder().multiply(BigDecimal.valueOf(detail.getQuantity())))
+//                .reduce(BigDecimal.ZERO, BigDecimal::add);
+//    }
 }

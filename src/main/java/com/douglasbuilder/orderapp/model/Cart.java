@@ -1,6 +1,6 @@
 package com.douglasbuilder.orderapp.model;
 
-import com.douglasbuilder.orderapp.model.enumetations.StatusCard;
+import com.douglasbuilder.orderapp.model.enumetations.CartStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -33,7 +33,11 @@ public class Cart {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
 
+    @OneToOne(mappedBy = "cart")
+    @JsonBackReference
+    private Order order;
+
     @Column
     @Enumerated(EnumType.STRING)
-    private StatusCard status;
+    private CartStatus status;
 }

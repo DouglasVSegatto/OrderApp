@@ -7,11 +7,9 @@ import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemProductAlreadyExists;
 import com.douglasbuilder.orderapp.exceptions.cartitem.InvalidCartItemQuantityException;
+import com.douglasbuilder.orderapp.exceptions.order.OrderAlreadyProcessedException;
 import com.douglasbuilder.orderapp.exceptions.order.OrderNotFoundException;
-import com.douglasbuilder.orderapp.exceptions.product.DuplicateNameException;
-import com.douglasbuilder.orderapp.exceptions.product.ProductException;
-import com.douglasbuilder.orderapp.exceptions.product.ProductNotAvailable;
-import com.douglasbuilder.orderapp.exceptions.product.ProductNotFoundException;
+import com.douglasbuilder.orderapp.exceptions.product.*;
 import com.douglasbuilder.orderapp.exceptions.user.DuplicateEmailException;
 import com.douglasbuilder.orderapp.exceptions.user.UserException;
 import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
@@ -59,8 +57,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    @ExceptionHandler(ProductNotAvailable.class)
-    public ResponseEntity<ApiErrorDTO> handleProductNotAvailable(ProductNotAvailable e) {
+    @ExceptionHandler(ProductNotAvailableException.class)
+    public ResponseEntity<ApiErrorDTO> handleProductNotAvailable(ProductNotAvailableException e) {
+        ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Product is not available", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(ProductInsufficientStockException.class)
+    public ResponseEntity<ApiErrorDTO> handleProductInsufficientStockException(ProductInsufficientStockException e) {
         ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Product is not available", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -113,6 +117,12 @@ public class GlobalExceptionHandler {
     // ORDER
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<ApiErrorDTO> handlerOrderNotFoundException(OrderNotFoundException e) {
+        ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Order not found", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(OrderAlreadyProcessedException.class)
+    public ResponseEntity<ApiErrorDTO> handlerOrderAlreadyProcessedException(OrderAlreadyProcessedException e) {
         ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Order not found", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
