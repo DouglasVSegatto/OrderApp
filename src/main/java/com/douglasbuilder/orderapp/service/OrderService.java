@@ -2,6 +2,7 @@ package com.douglasbuilder.orderapp.service;
 
 import com.douglasbuilder.orderapp.exceptions.order.OrderAlreadyProcessedException;
 import com.douglasbuilder.orderapp.exceptions.order.OrderCancellationNotAllowedException;
+import com.douglasbuilder.orderapp.exceptions.order.OrderException;
 import com.douglasbuilder.orderapp.exceptions.order.OrderNotFoundException;
 import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
@@ -66,6 +67,10 @@ public class OrderService {
 
     if (cart.getStatus().equals(CartStatus.PAID)){
       throw new OrderAlreadyProcessedException("Order already processed");
+    }
+
+    if (cart.getStatus().equals(CartStatus.CANCELLED)){
+      throw new OrderException("Cart previously cancelled, action not allowed");
     }
 
     Order order = createOrder(cart);

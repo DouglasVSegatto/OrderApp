@@ -19,6 +19,7 @@ import com.douglasbuilder.orderapp.repository.ProductRepository;
 import com.douglasbuilder.orderapp.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,14 @@ public class CartService {
     private final ProductRepository productRepository;
     private final CartMapper cartMapper;
     private final PriceCalculationService priceCalculationService;
+
+    public List<Cart> findAllCartsByUserIdOrThrow(UUID userId) {
+        List<Cart> cartList = cartRepository.findAllByUserId(userId);
+        if (cartList == null) {
+            throw new CartNotFoundException("User has no Cart, ID:" + userId);
+        }
+        return cartList;
+    }
 
     public Cart findCartByUserIdOrThrow(UUID userId) {
         Cart userCart = cartRepository.findByUserId(userId);
@@ -66,7 +75,7 @@ public class CartService {
             throw new ProductNotAvailableException("ID: " + productId);
         }
 
-        Cart cart = getOrCreateCart(userId);
+        Cart cart = getActiveOrCreateCart(userId);
 
         cart.getCartItems().forEach(item -> {
             if (item.getProduct().getId().equals(productId)) {
@@ -98,8 +107,9 @@ public class CartService {
 
     }
 
-    private Cart getOrCreateCart(UUID userId) {
-        Cart cart = cartRepository.findByUserId(userId);
+    private Cart getActiveOrCreateCart(UUID userId) {
+        Cart cart = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE);
+
         if (cart != null) {
             return cart;
         }

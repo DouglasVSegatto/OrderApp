@@ -25,7 +25,7 @@ public class Cart {
     private UUID id;
 
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;

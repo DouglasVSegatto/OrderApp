@@ -8,6 +8,7 @@ import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemNotFoundException
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemProductAlreadyExists;
 import com.douglasbuilder.orderapp.exceptions.cartitem.InvalidCartItemQuantityException;
 import com.douglasbuilder.orderapp.exceptions.order.OrderAlreadyProcessedException;
+import com.douglasbuilder.orderapp.exceptions.order.OrderException;
 import com.douglasbuilder.orderapp.exceptions.order.OrderNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.product.*;
 import com.douglasbuilder.orderapp.exceptions.user.DuplicateEmailException;
@@ -127,5 +128,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-
+    @ExceptionHandler(OrderException.class)
+    public ResponseEntity<ApiErrorDTO> handlerOrderException(OrderException e) {
+        ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Order not found", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 }
