@@ -26,11 +26,15 @@ public class CartController {
     // CART RELATED
     @GetMapping
     public ResponseEntity<?> getAllCartsByUserId(@RequestParam UUID userId) {
-        List<Cart> cartList = cartService.findAllCartsByUserIdOrThrow(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(cartList);
+        List<Cart> carts = cartService.findAllCartsByUserId(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(carts);
     }
 
-    //TODO get ACTIVE CART
+    @GetMapping("/active")
+    public ResponseEntity<?> getActiveCart (@RequestParam UUID userId) {
+        Cart cart = cartService.findActiveCartByUserId(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(cart);
+    }
 
     @DeleteMapping
     public ResponseEntity<?> deleteCart(@RequestParam UUID userId){
@@ -38,9 +42,9 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/status/{newStatus}")
-    public ResponseEntity<?> updateCartStatus(@RequestParam UUID userId, @PathVariable String newStatus){
-        cartService.updateCartStatus(userId, newStatus);
+    @PutMapping("/status/{status}")
+    public ResponseEntity<?> updateCartStatus(@RequestParam UUID userId, @PathVariable String status){
+        cartService.updateCartStatus(userId, status);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -58,10 +62,10 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/items/{itemId}/quantity/{newQuantity}")
-    public ResponseEntity<?> updateItemQuantity(@RequestParam UUID userId, @PathVariable Long itemId, @PathVariable Integer newQuantity){
-        CartItem userCartItemUpdated = cartService.updateCartItem(userId, itemId, newQuantity);
-        return ResponseEntity.status(HttpStatus.OK).body(cartMapper.toCartItemResponseDTO(userCartItemUpdated));
+    @PutMapping("/items/{itemId}/quantity/{quantity}")
+    public ResponseEntity<?> updateItemQuantity(@RequestParam UUID userId, @PathVariable Long itemId, @PathVariable Integer quantity){
+        CartItem updatedCartItem = cartService.updateCartItem(userId, itemId, quantity);
+        return ResponseEntity.status(HttpStatus.OK).body(cartMapper.toCartItemResponseDTO(updatedCartItem));
     }
 
 }
