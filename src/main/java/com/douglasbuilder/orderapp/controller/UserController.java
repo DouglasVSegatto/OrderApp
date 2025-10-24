@@ -26,11 +26,6 @@ public class UserController {
     PUT /user/{id}        (requires JWT)
     DELETE /user/{id}     (requires JWT)
      */
-    @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody CreateUserDTO createUserDTO) {
-        var user = userService.create(createUserDTO);
-        return ResponseEntity.status(201).body(new ApiResponse<>(user));
-    }
 
     @GetMapping
     public List<User> getUsers() {
