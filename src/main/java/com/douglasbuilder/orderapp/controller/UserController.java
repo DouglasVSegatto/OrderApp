@@ -7,11 +7,11 @@ import com.douglasbuilder.orderapp.dto.user.UpdateUserDTO;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -21,9 +21,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody CreateUserDTO createUserDTO) {
-        User user = userService.create(createUserDTO);
-        return ResponseEntity.status(201).body(user);
+    public ResponseEntity<?> createUser(@RequestBody CreateUserDTO createUserDTO) {
+        var user = userService.create(createUserDTO);
+        return ResponseEntity.status(201).body(new ApiResponse<>(user));
     }
 
     @GetMapping
@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ResponseUserDTO>> findUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ResponseUserDTO>> findUserById(@PathVariable UUID id) {
         var user = userService.findById(id);
 
         //TODO criei esse ApiResponse para padronizar as respostas da API
@@ -40,34 +40,14 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUserById(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUserById(@PathVariable UUID id) {
         userService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserById(
-            @PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
-        User user = userService.updateById(id, updateUserDTO);
-        return ResponseEntity.ok().body(user);
-    }
-
-    @GetMapping("/email/{email}")
-    public ResponseEntity<User> findUserByEmail(@PathVariable String email) {
-        User user = userService.findByEmail(email);
-        return ResponseEntity.status(HttpStatus.FOUND).body(user);
-    }
-
-    @DeleteMapping("/email/{email}")
-    public ResponseEntity<?> deleteUserByEmail(@PathVariable String email) {
-        userService.deleteByEmail(email);
+    public ResponseEntity<?> updateUserById(@PathVariable UUID id, @RequestBody UpdateUserDTO updateUserDTO) {
+        userService.updateById(id, updateUserDTO);
         return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/email/{email}")
-    public ResponseEntity<?> updateUserByEmail(
-            @PathVariable String email, @RequestBody UpdateUserDTO updateUserDTO) {
-        User user = userService.updateByEmail(email, updateUserDTO);
-        return ResponseEntity.ok().body(user);
     }
 }

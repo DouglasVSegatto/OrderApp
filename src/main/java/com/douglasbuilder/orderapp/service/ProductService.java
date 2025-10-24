@@ -3,15 +3,17 @@ package com.douglasbuilder.orderapp.service;
 import com.douglasbuilder.orderapp.dto.product.CreateProductDTO;
 import com.douglasbuilder.orderapp.dto.product.UpdateProductDTO;
 import com.douglasbuilder.orderapp.exceptions.product.DuplicateNameException;
+import com.douglasbuilder.orderapp.exceptions.product.ProductInsufficientStockException;
 import com.douglasbuilder.orderapp.exceptions.product.ProductNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
+import com.douglasbuilder.orderapp.mappers.ProductMapper;
 import com.douglasbuilder.orderapp.model.Product;
 import com.douglasbuilder.orderapp.repository.ProductRepository;
+import java.util.List;
+import java.util.UUID;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Data
 @Service
@@ -19,16 +21,22 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
     public List<Product> getAll() {
         return productRepository.findAll();
     }
 
-    public Product find(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + id));
+    public List<Product> getCatalog() {
+        return productRepository.getAllByAvailableTrue();
     }
 
-    public void delete(Long id) {
+    public Product find(UUID id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + id));
+    }
+
+    public void delete(UUID id) {
         if (!productRepository.existsById(id)) {
             throw new ProductNotFoundException("Product not found with ID: " + id);
         }
@@ -38,22 +46,15 @@ public class ProductService {
     public Product create(CreateProductDTO createProductDTO) {
 
         if (productRepository.existsBySku(createProductDTO.getSku())) {
-            throw new DuplicateNameException("Product name already registered. Name: " + createProductDTO.getName());
+            throw new DuplicateNameException("SKU: " + createProductDTO.getSku());
         }
 
-        //TODO refactor to use mapper like MapStruct UserService
-        var newProduct = new Product();
-        newProduct.setName(createProductDTO.getName());
-        newProduct.setSku(createProductDTO.getSku());
-        newProduct.setType(createProductDTO.getType());
-        newProduct.setQuantityInStock(createProductDTO.getQuantity());
-        newProduct.setPrice(createProductDTO.getPrice());
-        newProduct.setAvailable(createProductDTO.getAvailable());
+        var newProduct = productMapper.toModel(createProductDTO);
 
         return productRepository.save(newProduct);
     }
 
-    public Product update(Long id, UpdateProductDTO updateProductDTO) {
+    public Product update(UUID id, UpdateProductDTO updateProductDTO) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Product ID not found"));
 
@@ -77,6 +78,26 @@ public class ProductService {
         }
 
         return productRepository.save(product);
+
     }
 
+    public void reduceStock(UUID productId, Integer quantity){
+        Product product = find(productId);
+
+        if (!product.getAvailable()){
+            throw new ProductInsufficientStockException("Product is not available");
+        }
+
+        if (product.getQuantityInStock() < quantity){
+            throw new ProductInsufficientStockException("Product insufficient stock");
+        }
+
+        product.setQuantityInStock(product.getQuantityInStock() - quantity);
+
+        if (product.getQuantityInStock() == 0){
+            product.setAvailable(false);
+        }
+
+        productRepository.save(product);
+  }
 }

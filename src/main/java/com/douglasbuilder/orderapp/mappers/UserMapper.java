@@ -8,12 +8,7 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
+    User toModel(CreateUserDTO source);
 
-    /* Convert CreateUserDTO to User entity
-    * Propriedades com o mesmo nome serao mapeadas automaticamente. Ex: Dto firstName > User firstName, Dto lastName  > User lastname
-    * */
-    User toModel (CreateUserDTO source);
-
-    ResponseUserDTO toDto (User source);
-
+    ResponseUserDTO toDto(User source);
 }

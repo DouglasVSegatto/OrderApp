@@ -1,15 +1,13 @@
 package com.douglasbuilder.orderapp.model;
 
+import com.douglasbuilder.orderapp.model.enumetations.CartStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,14 +16,14 @@ import java.util.UUID;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Table(name = "orders")
-public class Order {
+@Table(name = "carts")
+public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
     private UUID id;
+
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -33,17 +31,15 @@ public class Order {
     private User user;
 
     @Column
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    private CartStatus status;
 
-    @Column
-    private LocalDateTime lastUpdate;
-
-    @Column
-    private BigDecimal total;
-
-    @OneToOne
-    @JoinColumn(name = "cart_id")
     @JsonManagedReference
-    private Cart cart;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> cartItems = new ArrayList<>();
+
+    @OneToOne(mappedBy = "cart")
+    @JsonBackReference
+    private Order order;
 
 }

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Entity
 @NoArgsConstructor
@@ -13,9 +15,9 @@ import lombok.NoArgsConstructor;
 public class User {
 
     @Id
-    @GeneratedValue
     @Column
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
     @Column
     private String firstName;
     @Column
@@ -24,7 +26,7 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    public String fullName() {
+    public String getFullName() {
         return getFirstName() + " " + getLastName();
     }
 }
