@@ -1,6 +1,8 @@
 package com.douglasbuilder.orderapp.exceptions;
 
 import com.douglasbuilder.orderapp.dto.api.ApiErrorDTO;
+import com.douglasbuilder.orderapp.exceptions.auth.AuthException;
+import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
 import com.douglasbuilder.orderapp.exceptions.cart.CartException;
 import com.douglasbuilder.orderapp.exceptions.cart.CartNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemException;
@@ -124,13 +126,28 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(OrderAlreadyProcessedException.class)
     public ResponseEntity<ApiErrorDTO> handlerOrderAlreadyProcessedException(OrderAlreadyProcessedException e) {
-        ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Order not found", e.getMessage());
+        ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Order Already Processed", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(OrderException.class)
     public ResponseEntity<ApiErrorDTO> handlerOrderException(OrderException e) {
-        ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Order not found", e.getMessage());
+        ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Internal Error", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+
+    // AUTH
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ApiErrorDTO> handlerAuthException(AuthException e) {
+        ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Internal Error", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(AuthInvalidCredentialsException.class)
+    public ResponseEntity<ApiErrorDTO> handlerAuthInvalidCredentialsException(AuthInvalidCredentialsException e) {
+        ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Invalid credentials", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
 }

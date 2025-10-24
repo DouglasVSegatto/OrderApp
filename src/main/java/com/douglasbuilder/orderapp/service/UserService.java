@@ -3,6 +3,7 @@ package com.douglasbuilder.orderapp.service;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
 import com.douglasbuilder.orderapp.dto.user.ResponseUserDTO;
 import com.douglasbuilder.orderapp.dto.user.UpdateUserDTO;
+import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
 import com.douglasbuilder.orderapp.exceptions.user.DuplicateEmailException;
 import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.mappers.UserMapper;
@@ -81,6 +82,13 @@ public class UserService {
             throw new UserNotFoundException("No User found with ID: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    public void authenticateUser(String email, String pwd) {
+        User user = findByEmail(email);
+        if (!passwordEncoder.matches(pwd, user.getPassword())){
+            throw new AuthInvalidCredentialsException("Password invalid -- TempMsg");
+        };
     }
 
 }
