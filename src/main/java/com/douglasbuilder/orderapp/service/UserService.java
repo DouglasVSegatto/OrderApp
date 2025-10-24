@@ -10,6 +10,7 @@ import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.UserRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public List<User> getAll() {
         return userRepository.findAll();
@@ -34,9 +36,11 @@ public class UserService {
         }
 
         // MapStruct will handle the mapping from CreateUserDTO to User entity
-        User newUser = userMapper.toModel(createUserDTO);
+        var user = userMapper.toModel(createUserDTO);
 
-        var createdUser = userRepository.save(newUser);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        var createdUser = userRepository.save(user);
 
         return userMapper.toDto(createdUser);
     }

@@ -18,13 +18,21 @@ public class User {
     @Column
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     @Column
     private String firstName;
+
     @Column
     private String lastName;
 
     @Column(unique = true)
     private String email;
+
+    @Column
+    private String password;
+
+    @Column
+    private String role;
 
     public String getFullName() {
         return getFirstName() + " " + getLastName();
