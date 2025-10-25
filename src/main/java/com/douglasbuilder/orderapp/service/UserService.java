@@ -25,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final InternalUserService internalUserService;
 
     public List<User> getAll() {
         return userRepository.findAll();
@@ -89,6 +90,21 @@ public class UserService {
         if (!passwordEncoder.matches(pwd, user.getPassword())){
             throw new AuthInvalidCredentialsException("Password invalid -- TempMsg");
         };
+    }
+
+    public void changePassword(UUID id, String currentPassword, String newPassword) {
+        User user = internalUserService.findById(id);
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())){
+            throw new AuthInvalidCredentialsException("Password invalid -- TempMsg");
+        };
+
+        if (passwordEncoder.matches(newPassword, user.getPassword())){
+            throw new AuthInvalidCredentialsException("New password is same as previous, try again.");
+        };
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
     }
 
 }

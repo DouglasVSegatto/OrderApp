@@ -3,6 +3,7 @@ package com.douglasbuilder.orderapp.controller;
 import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
 import com.douglasbuilder.orderapp.dto.user.ResponseUserDTO;
+import com.douglasbuilder.orderapp.dto.user.UpdatePasswordUserDTO;
 import com.douglasbuilder.orderapp.dto.user.UpdateUserDTO;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.service.UserService;
@@ -51,4 +52,11 @@ public class UserController {
         userService.updateById(id, updateUserDTO);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<?> changeUserPassword(@PathVariable UUID id, @RequestBody UpdatePasswordUserDTO dto) {
+        userService.changePassword(id, dto.getCurrentPassword(), dto.getNewPassword());
+        return ResponseEntity.ok().build();
+    }
+
 }
