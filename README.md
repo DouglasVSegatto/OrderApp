@@ -68,3 +68,65 @@
 - Proper entity relationships with cascade operations
 - Validation and constraint handling
 - Lombok for reduced boilerplate
+
+---
+
+# 🎯 Epic: authentication-system
+
+## 🚧 Feature Branches Breakdown
+
+### ✅ feature/user-password-setup
+- Add password field to User entity
+- Password validation constraints
+- Update User model with security annotations
+
+### ✅ feature/auth-controller-setup
+- Create AuthController with basic endpoints
+- Move user registration from UserController to AuthController
+- Implement `POST /auth/register` endpoint
+- Basic request/response DTOs for authentication
+
+### ✅ feature/security-config
+- **PasswordConfig**
+  - BCrypt password encoder bean
+  - Password strength configuration
+- **SecurityConfig**
+  - Basic security configuration (permit all for now)
+  - CORS configuration for future frontend
+  - Security filter chain setup
+
+### 🛠️ feature/user-service-auth
+- Password encoding on user creation
+- Password verification for authentication
+- User authentication method
+- Password validation logic
+
+### 🎫 feature/jwt-token-service
+- JWT token generation
+- Token validation
+- Token refresh mechanism
+- Token expiration handling
+- JWT utility methods
+
+### 🌐 feature/auth-endpoints
+- Complete `POST /auth/login` implementation
+- Implement `POST /auth/refresh` endpoint
+- Authentication response DTOs
+- Error handling for auth failures
+
+### 📋 feature/account-management
+- Account deactivation/cancellation
+- Password reset flow
+- User account status management
+
+### 🔒 feature/security-enhancements
+- Request rate limiting
+- Failed login attempt tracking
+- Session management
+- Security headers configuration
+
+### 🔮 Future Epic Considerations
+- Role-based access control (RBAC)
+- OAuth2 integration
+- Multi-factor authentication (MFA)
+- Account lockout policies
