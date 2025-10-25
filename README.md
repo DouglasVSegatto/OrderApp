@@ -1,41 +1,70 @@
-# SEGATTO Next Steps
+# OrderApp - Completed Features
 
-## 1. Cart
-- Add item to cart per click
-    - * Cart doesnt exist until Item is append
-      - if cart already exists, append cart item 
-      - else create cart and add cart itemn
-    - * Cart already contains item
-      - append item
-    - * Exclude items
-      * Exclude the cart item
-    - * IF all cart items deleted
-      - Cart is deleted
-    - * update cart items quantity - Plus or Less
-    Total not needed
-    * total value should be recalculated in every action
-      * NOT SAVED/STATIC
-      * ``
-    * Create Enum for cart status (created, completed, pending,)
-* Add item to cart - From page perspective
-* 
-- [ ] Create cart
-- [ ] Add cart validation
-- [ ] Link to User
+## ✅ Cart System
+- **Cart Management**
+  - Auto-creation when first item is added
+  - Active cart per user (one cart at a time)
+  - Cart deletion when empty
+  - Cart status management (ACTIVE, PAID, CANCELLED)
+  - User-cart relationship established
 
-## 2. CartItem
-- [ ] Add/remove items
-- [ ] Update quantities
-- [ ] Link to Product
-- [ ] Calculate subtotals
+- **Cart Operations**
+  - Add items to cart (prevents duplicates)
+  - Remove items from cart
+  - Update item quantities
+  - Dynamic total calculation (not stored, calculated on-demand)
+  - Cart validation and exception handling
 
-## 3. Order
-- [ ] Convert Cart to Order
-- [ ] Order status management
-- [ ] Payment integration
-- [ ] Order validation
+## ✅ CartItem System
+- **Item Management**
+  - Add/remove cart items
+  - Quantity updates with validation
+  - Product-cartitem relationship
+  - Subtotal calculations via PriceCalculationService
+  - Prevents adding unavailable products
 
-## 4. OrderLineItem
-- [ ] Transfer CartItems to OrderLineItems
-- [ ] Price freezing (store price at time of order)
-- [ ] Order item status
+## ✅ Order System
+- **Order Processing**
+  - Convert active cart to paid order
+  - Order creation with timestamp tracking
+  - Total price calculation and storage
+  - Order cancellation (for paid orders only)
+  - Stock reduction on payment
+  - Order-cart relationship (one-to-one)
+
+## ✅ Product & User Systems
+- **Product Management**
+  - Stock tracking and validation
+  - Availability status
+  - Price management
+  - Stock reduction on order payment
+
+- **User Management**
+  - User-cart relationship
+  - User-order relationship
+  - Multiple order history per user
+
+## ✅ Additional Features Implemented
+- **Exception Handling**
+  - Comprehensive error handling for all operations
+  - Custom exceptions for cart, order, product, and user operations
+  - Global exception handler
+
+- **REST API**
+  - Complete REST endpoints for all operations
+  - Proper HTTP status codes
+  - Request/response DTOs
+
+- **Services & Architecture**
+  - Dedicated service layer
+  - Price calculation service
+  - Repository pattern
+  - Entity mappers
+  - Transaction management
+
+## 📋 Architecture Notes
+- Uses Spring Boot with JPA/Hibernate
+- UUID-based entity identification
+- Proper entity relationships with cascade operations
+- Validation and constraint handling
+- Lombok for reduced boilerplate
