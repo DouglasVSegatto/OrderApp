@@ -32,28 +32,29 @@ public class OrderService {
   }
 
   public Order getOrderById(UUID orderId) {
-    return orderRepository.findById(orderId)
+    return orderRepository
+        .findById(orderId)
         .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
   }
 
   @Transactional
   public void cancelOrder(UUID orderId) {
     Order order =
-            orderRepository
-                    .findById(orderId)
-                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
+        orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
 
-    if (order.getCart().getStatus() != CartStatus.PAID){
+    if (order.getCart().getStatus() != CartStatus.PAID) {
       throw new OrderCancellationNotAllowedException("Only paid orders can be cancelled");
     }
 
-    //TODO return items to product as it was cancelled.
+    // TODO return items to product as it was cancelled.
 
-    //Update cart status and save
+    // Update cart status and save
     order.getCart().setStatus(CartStatus.CANCELLED);
     cartService.saveCart(order.getCart());
 
-    //Update order time and save
+    // Update order time and save
     order.setLastUpdate(LocalDateTime.now());
     orderRepository.save(order);
   }
@@ -61,48 +62,46 @@ public class OrderService {
   @Transactional
   public void payOrder(UUID cartId) {
     Cart cart =
-            cartRepository
-                    .findById(cartId)
-                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + cartId));
+        cartRepository
+            .findById(cartId)
+            .orElseThrow(() -> new OrderNotFoundException("Order ID: " + cartId));
 
-    if (cart.getStatus().equals(CartStatus.PAID)){
+    if (cart.getStatus().equals(CartStatus.PAID)) {
       throw new OrderAlreadyProcessedException("Order already processed");
     }
 
-    if (cart.getStatus().equals(CartStatus.CANCELLED)){
+    if (cart.getStatus().equals(CartStatus.CANCELLED)) {
       throw new OrderException("Cart previously cancelled, action not allowed");
     }
 
     Order order = createOrder(cart);
 
-    for (CartItem item : cart.getCartItems()){
+    for (CartItem item : cart.getCartItems()) {
       productService.reduceStock(item.getProduct().getId(), item.getQuantity());
     }
-    //Update cart status and save
+    // Update cart status and save
     cart.setStatus(CartStatus.PAID);
     cartService.saveCart(cart);
 
-    //Update order time and save
+    // Update order time and save
     order.setCreatedAt(LocalDateTime.now());
     order.setLastUpdate(LocalDateTime.now());
     orderRepository.save(order);
-
   }
 
   @Transactional
   public Order createOrder(Cart cart) {
 
     return Order.builder()
-            .cart(cart)
-            .user(cart.getUser())
-            .createdAt(LocalDateTime.now())
-            .lastUpdate(LocalDateTime.now())
-            .total(priceCalculationService.calculateCartTotal(cart.getCartItems()))
-            .build();
+        .cart(cart)
+        .user(cart.getUser())
+        .createdAt(LocalDateTime.now())
+        .lastUpdate(LocalDateTime.now())
+        .total(priceCalculationService.calculateCartTotal(cart.getCartItems()))
+        .build();
   }
 
   public void deleteOrderById(UUID orderId) {
     orderRepository.delete(getOrderById(orderId));
   }
-
 }

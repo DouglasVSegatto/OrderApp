@@ -32,140 +32,143 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CartService {
 
-    private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
-    private final UserRepository userRepository;
-    private final ProductRepository productRepository;
-    private final CartMapper cartMapper;
-    private final PriceCalculationService priceCalculationService;
+  private final CartRepository cartRepository;
+  private final CartItemRepository cartItemRepository;
+  private final UserRepository userRepository;
+  private final ProductRepository productRepository;
+  private final CartMapper cartMapper;
+  private final PriceCalculationService priceCalculationService;
 
-    public List<Cart> findAllCartsByUserId(UUID userId) {
-        List<Cart> carts = cartRepository.findAllByUserId(userId);
-        if (carts == null) {
-            throw new CartNotFoundException("User has no Cart, ID:" + userId);
-        }
-        return carts;
+  public List<Cart> findAllCartsByUserId(UUID userId) {
+    List<Cart> carts = cartRepository.findAllByUserId(userId);
+    if (carts == null) {
+      throw new CartNotFoundException("User has no Cart, ID:" + userId);
+    }
+    return carts;
+  }
+
+  public Cart findCartByUserId(UUID userId) {
+    Cart cart = cartRepository.findByUserId(userId);
+    if (cart == null) {
+      throw new CartNotFoundException("User has no Cart, ID:" + userId);
+    }
+    return cart;
+  }
+
+  public Cart findActiveCartByUserId(UUID userId) {
+    Cart cart = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE);
+    if (cart == null) {
+      throw new CartNotFoundException("User has no Cart in Active status, ID:" + userId);
+    }
+    return cart;
+  }
+
+  public Cart findCartById(UUID cartId) {
+    return cartRepository
+        .findById(cartId)
+        .orElseThrow(() -> new CartNotFoundException("Cart ID Not found"));
+  }
+
+  public CartResponseDTO getCartWithTotal(UUID userId) {
+    Cart cart = findCartByUserId(userId);
+    CartResponseDTO dto = cartMapper.toCartResponseDTO(cart);
+    dto.setTotal(priceCalculationService.calculateCartTotal(cart.getCartItems()));
+    return dto;
+  }
+
+  public void addItem(UUID userId, UUID productId) {
+
+    Product product =
+        productRepository
+            .findById(productId)
+            .orElseThrow(() -> new ProductNotFoundException("ID: " + productId));
+
+    if (!product.getAvailable()) {
+      throw new ProductNotAvailableException("ID: " + productId);
     }
 
-    public Cart findCartByUserId(UUID userId) {
-        Cart cart = cartRepository.findByUserId(userId);
-        if (cart == null) {
-            throw new CartNotFoundException("User has no Cart, ID:" + userId);
-        }
-        return cart;
-    }
+    Cart cart = findActiveOrCreateCart(userId);
 
-    public Cart findActiveCartByUserId(UUID userId) {
-        Cart cart = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE);
-        if (cart == null) {
-            throw new CartNotFoundException("User has no Cart in Active status, ID:" + userId);
-        }
-        return cart;
-    }
-
-    public Cart findCartById(UUID cartId){
-        return cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException("Cart ID Not found"));
-    }
-
-
-    public CartResponseDTO getCartWithTotal(UUID userId){
-        Cart cart = findCartByUserId(userId);
-        CartResponseDTO dto = cartMapper.toCartResponseDTO(cart);
-        dto.setTotal(priceCalculationService.calculateCartTotal(cart.getCartItems()));
-        return dto;
-    }
-
-    public void addItem(UUID userId, UUID productId) {
-
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("ID: " + productId));
-
-        if (!product.getAvailable()){
-            throw new ProductNotAvailableException("ID: " + productId);
-        }
-
-        Cart cart = findActiveOrCreateCart(userId);
-
-        cart.getCartItems().forEach(item -> {
-            if (item.getProduct().getId().equals(productId)) {
+    cart.getCartItems()
+        .forEach(
+            item -> {
+              if (item.getProduct().getId().equals(productId)) {
                 throw new CartItemProductAlreadyExists("Product already in the cart");
-            }
-        });
+              }
+            });
 
-        var cartItem = CartItem.builder()
-                .product(product)
-                .quantity(1)
-                .cart(cart)
-                .build();
+    var cartItem = CartItem.builder().product(product).quantity(1).cart(cart).build();
 
-        cart.getCartItems().add(cartItem);
+    cart.getCartItems().add(cartItem);
 
-        cartRepository.save(cart);
+    cartRepository.save(cart);
+  }
+
+  public void deleteItem(UUID userId, Long itemId) {
+    Cart cart = findCartByUserId(userId);
+
+    CartItem cartItem =
+        cart.getCartItems().stream()
+            .filter(item -> item.getId().equals(itemId))
+            .findFirst()
+            .orElseThrow(() -> new CartItemNotFoundException("ID: " + itemId));
+
+    cart.getCartItems().remove(cartItem);
+    cartRepository.save(cart);
+  }
+
+  private Cart findActiveOrCreateCart(UUID userId) {
+    Cart cart = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE);
+
+    if (cart != null) {
+      return cart;
     }
 
+    var user = userRepository.getReferenceById(userId);
 
-    public void deleteItem(UUID userId, Long itemId) {
-        Cart cart = findCartByUserId(userId);
+    cart = new Cart();
+    cart.setUser(user);
+    cart.setCartItems(new ArrayList<>());
+    cart.setStatus(CartStatus.ACTIVE);
+    return cartRepository.save(cart);
+  }
 
-        CartItem cartItem = cart.getCartItems().stream()
-                .filter(item -> item.getId().equals(itemId))
-                .findFirst().orElseThrow(() -> new CartItemNotFoundException("ID: " + itemId));
+  @Transactional
+  public void deleteCart(UUID userId) {
+    if (!cartRepository.existsByUserId(userId)) {
+      throw new UserNotFoundException("ID: " + userId);
+    }
+    cartRepository.deleteCartByUser_Id(userId);
+  }
 
-        cart.getCartItems().remove(cartItem);
-        cartRepository.save(cart);
+  @Transactional
+  public CartItem updateCartItem(UUID userId, Long itemId, Integer quantity) {
 
+    if (quantity <= 0) {
+      throw new InvalidCartItemQuantityException("Quantity: " + quantity);
     }
 
-    private Cart findActiveOrCreateCart(UUID userId) {
-        Cart cart = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE);
+    Cart cart = findCartByUserId(userId);
 
-        if (cart != null) {
-            return cart;
-        }
+    CartItem cartItem =
+        cart.getCartItems().stream()
+            .filter(item -> item.getId().equals(itemId))
+            .findFirst()
+            .orElseThrow(() -> new CartItemNotFoundException("ID: " + itemId));
 
-        var user = userRepository.getReferenceById(userId);
+    cartItem.setQuantity(quantity);
+    cartRepository.save(cart);
+    return cartItem;
+  }
 
-        cart = new Cart();
-        cart.setUser(user);
-        cart.setCartItems(new ArrayList<>());
-        cart.setStatus(CartStatus.ACTIVE);
-        return cartRepository.save(cart);
-    }
+  @Transactional
+  public void updateCartStatus(UUID userId, String status) {
+    Cart cart = findCartByUserId(userId);
+    cart.setStatus(CartStatus.valueOf(status.toUpperCase()));
+    cartRepository.save(cart);
+  }
 
-    @Transactional
-    public void deleteCart(UUID userId){
-        if (!cartRepository.existsByUserId(userId)){
-            throw new UserNotFoundException("ID: " + userId);
-        }
-        cartRepository.deleteCartByUser_Id(userId);
-    }
-
-    @Transactional
-    public CartItem updateCartItem(UUID userId, Long itemId, Integer quantity){
-
-        if (quantity <= 0){
-            throw new InvalidCartItemQuantityException("Quantity: " + quantity);
-        }
-
-        Cart cart = findCartByUserId(userId);
-
-        CartItem cartItem = cart.getCartItems().stream()
-                .filter(item -> item.getId().equals(itemId))
-                .findFirst().orElseThrow(() -> new CartItemNotFoundException("ID: " + itemId));
-
-        cartItem.setQuantity(quantity);
-        cartRepository.save(cart);
-        return cartItem;
-    }
-
-    @Transactional
-    public void updateCartStatus(UUID userId, String status){
-        Cart cart = findCartByUserId(userId);
-        cart.setStatus(CartStatus.valueOf(status.toUpperCase()));
-        cartRepository.save(cart);
-    }
-
-    public  void saveCart(Cart cart){
-        cartRepository.save(cart);
-    }
-
+  public void saveCart(Cart cart) {
+    cartRepository.save(cart);
+  }
 }

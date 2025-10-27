@@ -9,11 +9,10 @@ import lombok.Data;
 @Data
 public class OrderResponseDTO {
 
-    private UUID id;
-    private Cart status;
-    private LocalDateTime createdAt;
-    private LocalDateTime lastUpdate;
-    private BigDecimal total;
-    private Cart cart;
-
+  private UUID id;
+  private Cart status;
+  private LocalDateTime createdAt;
+  private LocalDateTime lastUpdate;
+  private BigDecimal total;
+  private Cart cart;
 }

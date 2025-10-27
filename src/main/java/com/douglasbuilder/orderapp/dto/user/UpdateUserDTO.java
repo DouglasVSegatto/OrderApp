@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class UpdateUserDTO {
-    String firstName;
-    String lastName;
-    String email;
+  String firstName;
+  String lastName;
+  String email;
 }

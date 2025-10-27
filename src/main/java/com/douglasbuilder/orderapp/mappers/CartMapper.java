@@ -11,12 +11,11 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CartMapper {
 
-    @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "userName", source = "user.firstName")
-    CartResponseDTO toCartResponseDTO(Cart cart);
+  @Mapping(target = "userId", source = "user.id")
+  @Mapping(target = "userName", source = "user.firstName")
+  CartResponseDTO toCartResponseDTO(Cart cart);
 
-    @Mapping(target = "productId", source = "product.id")
-    @Mapping(target = "productSku", source = "product.sku")
-    CartItemResponseDTO toCartItemResponseDTO(CartItem cartItem);
-
+  @Mapping(target = "productId", source = "product.id")
+  @Mapping(target = "productSku", source = "product.sku")
+  CartItemResponseDTO toCartItemResponseDTO(CartItem cartItem);
 }

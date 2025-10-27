@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class UpdateCartItemQuantityDTO {
-    private Integer quantity;  // Only what we need
+  private Integer quantity; // Only what we need
 }

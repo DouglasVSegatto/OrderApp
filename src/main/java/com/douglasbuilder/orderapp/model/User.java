@@ -1,11 +1,10 @@
 package com.douglasbuilder.orderapp.model;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Data
 @Entity
@@ -14,27 +13,23 @@ import java.util.UUID;
 @Table(name = "users")
 public class User {
 
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @Column
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column
-    private String firstName;
+  @Column private String firstName;
 
-    @Column
-    private String lastName;
+  @Column private String lastName;
 
-    @Column(unique = true)
-    private String email;
+  @Column(unique = true)
+  private String email;
 
-    @Column
-    private String password;
+  @Column private String password;
 
-    @Column
-    private String role;
+  @Column private String role;
 
-    public String getFullName() {
-        return getFirstName() + " " + getLastName();
-    }
+  public String getFullName() {
+    return getFirstName() + " " + getLastName();
+  }
 }

@@ -14,36 +14,35 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderService orderService;
+  private final OrderService orderService;
 
-    @GetMapping
-    public ResponseEntity<?> getUserOrders(@RequestParam UUID userId) {
-        List<Order> orders = orderService.getOrdersByUserId(userId);
-        return ResponseEntity.ok(orders);
-    }
+  @GetMapping
+  public ResponseEntity<?> getUserOrders(@RequestParam UUID userId) {
+    List<Order> orders = orderService.getOrdersByUserId(userId);
+    return ResponseEntity.ok(orders);
+  }
 
-    @GetMapping("/{orderId}")
-    public ResponseEntity<?> getOrder(@PathVariable UUID orderId) {
-        Order order = orderService.getOrderById(orderId);
-        return ResponseEntity.ok(order);
-    }
+  @GetMapping("/{orderId}")
+  public ResponseEntity<?> getOrder(@PathVariable UUID orderId) {
+    Order order = orderService.getOrderById(orderId);
+    return ResponseEntity.ok(order);
+  }
 
-    @PostMapping("/{orderId}/cancel")
-    public ResponseEntity<?> cancelOrder(@PathVariable UUID orderId) {
-        orderService.cancelOrder(orderId);
-        return ResponseEntity.ok().build();
-    }
+  @PostMapping("/{orderId}/cancel")
+  public ResponseEntity<?> cancelOrder(@PathVariable UUID orderId) {
+    orderService.cancelOrder(orderId);
+    return ResponseEntity.ok().build();
+  }
 
-    @PostMapping("/{cartId}/pay")
-    public ResponseEntity<?> payOrder(@PathVariable UUID cartId) {
-        orderService.payOrder(cartId);
-        return ResponseEntity.ok().build();
-    }
+  @PostMapping("/{cartId}/pay")
+  public ResponseEntity<?> payOrder(@PathVariable UUID cartId) {
+    orderService.payOrder(cartId);
+    return ResponseEntity.ok().build();
+  }
 
-    @DeleteMapping("/{orderId}/delete")
-    public ResponseEntity<?> deleteOrderById(@PathVariable UUID orderId){
-        orderService.deleteOrderById(orderId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
+  @DeleteMapping("/{orderId}/delete")
+  public ResponseEntity<?> deleteOrderById(@PathVariable UUID orderId) {
+    orderService.deleteOrderById(orderId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
 }

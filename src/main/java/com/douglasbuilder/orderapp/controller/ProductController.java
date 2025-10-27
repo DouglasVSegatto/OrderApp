@@ -6,59 +6,57 @@ import com.douglasbuilder.orderapp.dto.product.UpdateProductDTO;
 import com.douglasbuilder.orderapp.model.Product;
 import com.douglasbuilder.orderapp.service.CartService;
 import com.douglasbuilder.orderapp.service.ProductService;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/product")
 public class ProductController {
 
-    private final ProductService productService;
-    private final CartService cartService;
+  private final ProductService productService;
+  private final CartService cartService;
 
-    public ProductController(ProductService productService, CartService cartService) {
-        this.productService = productService;
-        this.cartService = cartService;
-    }
+  public ProductController(ProductService productService, CartService cartService) {
+    this.productService = productService;
+    this.cartService = cartService;
+  }
 
-    @GetMapping
-    public ResponseEntity<?> getAll() {
-        var products = productService.getAll();
-        return ResponseEntity.ok().body(new ApiResponse<>(products));
-    }
+  @GetMapping
+  public ResponseEntity<?> getAll() {
+    var products = productService.getAll();
+    return ResponseEntity.ok().body(new ApiResponse<>(products));
+  }
 
-    @GetMapping("/catalog")
-    public ResponseEntity<?> getCatalog() {
-        var products = productService.getCatalog();
-        return ResponseEntity.ok().body(new ApiResponse<>(products));
-    }
+  @GetMapping("/catalog")
+  public ResponseEntity<?> getCatalog() {
+    var products = productService.getCatalog();
+    return ResponseEntity.ok().body(new ApiResponse<>(products));
+  }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> find(@PathVariable UUID id) {
-        Product product = productService.find(id);
-        return ResponseEntity.ok(product);
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<?> find(@PathVariable UUID id) {
+    Product product = productService.find(id);
+    return ResponseEntity.ok(product);
+  }
 
-    @PostMapping
-    public ResponseEntity<Product> create(@RequestBody CreateProductDTO createProductDTO) {
-        Product product = productService.create(createProductDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(product);
-    }
+  @PostMapping
+  public ResponseEntity<Product> create(@RequestBody CreateProductDTO createProductDTO) {
+    Product product = productService.create(createProductDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(product);
+  }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable UUID id, @RequestBody UpdateProductDTO updateProductDTO) {
-        Product product = productService.update(id, updateProductDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(product);
-    }
+  @PutMapping("/{id}")
+  public ResponseEntity<Product> update(
+      @PathVariable UUID id, @RequestBody UpdateProductDTO updateProductDTO) {
+    Product product = productService.update(id, updateProductDTO);
+    return ResponseEntity.status(HttpStatus.OK).body(product);
+  }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable UUID id) {
-        cartService.deleteCart(id);
-        return ResponseEntity.ok().build();
-    }
-
-
+  @DeleteMapping("/{id}")
+  public ResponseEntity<?> delete(@PathVariable UUID id) {
+    cartService.deleteCart(id);
+    return ResponseEntity.ok().build();
+  }
 }
