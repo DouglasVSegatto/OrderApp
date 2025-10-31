@@ -85,11 +85,12 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public void authenticateUser(String email, String pwd) {
+    public User authenticateUser(String email, String pwd) {
         User user = findByEmail(email);
         if (!passwordEncoder.matches(pwd, user.getPassword())){
             throw new AuthInvalidCredentialsException("Password invalid -- TempMsg");
         };
+        return user;
     }
 
     public void changePassword(UUID id, String currentPassword, String newPassword) {

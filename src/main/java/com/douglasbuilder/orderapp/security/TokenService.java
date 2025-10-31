@@ -4,7 +4,9 @@ package com.douglasbuilder.orderapp.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.douglasbuilder.orderapp.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,7 +37,7 @@ public class TokenService {
 
     }
 
-    public String validaToken(String token){
+    public String validateToken(String token){
         try{
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm)
@@ -49,7 +51,30 @@ public class TokenService {
         }
     }
 
-    //Using Brasil Timezone
+    public boolean isTokenExpired(String token){
+        try{
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            JWT.require(algorithm)
+                    .withIssuer("auth-api")
+                    .build()
+                    .verify(token);
+            return false;
+        } catch (TokenExpiredException exception){
+            return true;
+        } catch (JWTVerificationException e) {
+            throw new RuntimeException("Invalid token signature or format", e);
+        }
+    }
+
+    public String extractTokenSubject(String token){
+        try{
+            return JWT.decode(token).getSubject();
+        } catch (JWTDecodeException exception) {
+            throw new RuntimeException("Invalid token format", exception);
+        }
+    }
+
+    //Using Brazil Timezone
     private Instant getExpirationDate(){
             return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
         }

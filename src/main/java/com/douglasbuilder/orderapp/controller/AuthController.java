@@ -4,6 +4,7 @@ import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.dto.auth.AuthRequestDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
 import com.douglasbuilder.orderapp.model.Order;
+import com.douglasbuilder.orderapp.security.TokenService;
 import com.douglasbuilder.orderapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +22,13 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
-    /*
-    POST /auth/register
-    POST /auth/login
-    POST /auth/refresh
-     */
+    @Autowired
+    private TokenService tokenService;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequestDTO authRequest){
-        userService.authenticateUser(authRequest.getEmail(), authRequest.getPassword());
-        return ResponseEntity.ok().body("Login Successful");
+        var user = userService.authenticateUser(authRequest.getEmail(), authRequest.getPassword());
+        return ResponseEntity.ok().body(tokenService.generateToken(user));
     }
 
     @PostMapping("/register")

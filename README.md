@@ -92,14 +92,12 @@
   - Password strength configuration
 - **SecurityConfig**
   - Basic security configuration (permit all for now)
-  - CORS configuration for future frontend
   - Security filter chain setup
 
-### 🛠️ feature/user-service-auth
+### ✅️ feature/user-service-auth
 - Password encoding on user creation
 - Password verification for authentication
-- User authentication method
-- Password validation logic
+- Password change
 
 ### 🎫 feature/jwt-token-service
 - JWT token generation
