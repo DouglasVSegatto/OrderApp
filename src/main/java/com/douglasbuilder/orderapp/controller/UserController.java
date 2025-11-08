@@ -19,12 +19,6 @@ public class UserController {
 
   private final UserService userService;
 
-  /*
-  UserController:
-  GET /user/{id}        (requires JWT)
-  PUT /user/{id}        (requires JWT)
-  DELETE /user/{id}     (requires JWT)
-   */
 
   @GetMapping
   public List<User> getUsers() {

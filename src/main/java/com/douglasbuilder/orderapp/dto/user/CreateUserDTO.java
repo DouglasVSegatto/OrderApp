@@ -23,4 +23,7 @@ public class CreateUserDTO {
 
   @NotBlank(message = "Password is required")
   String password;
+
+  @NotBlank(message = "Roles is required")
+  String role;
 }

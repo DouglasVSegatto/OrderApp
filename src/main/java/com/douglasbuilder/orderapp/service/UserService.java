@@ -13,16 +13,16 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
 
 @Data
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
@@ -91,27 +91,22 @@ public class UserService {
     userRepository.deleteById(id);
   }
 
-    public User authenticateUser(String email, String pwd) {
-        User user = findByEmail(email);
-        if (!passwordEncoder.matches(pwd, user.getPassword())){
-            throw new AuthInvalidCredentialsException("Password invalid -- TempMsg");
-        };
-        return user;
-    }
-
   public void changePassword(UUID id, String currentPassword, String newPassword) {
     User user = internalUserService.findById(id);
     if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
       throw new AuthInvalidCredentialsException("Password invalid -- TempMsg");
     }
-    ;
 
-    if (passwordEncoder.matches(newPassword, user.getPassword())) {
+      if (passwordEncoder.matches(newPassword, user.getPassword())) {
       throw new AuthInvalidCredentialsException("New password is same as previous, try again.");
     }
-    ;
 
-    user.setPassword(passwordEncoder.encode(newPassword));
+      user.setPassword(passwordEncoder.encode(newPassword));
     userRepository.save(user);
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    return userRepository.findByEmail(username);
   }
 }
