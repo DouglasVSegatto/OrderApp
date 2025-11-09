@@ -12,31 +12,41 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final UserService userService; // Your UserDetailsService
+  private final UserService userService;
+  private final SecurityFilter securityFilter;
 
+  /* Current setting configs for basic tests, not final config yet */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(
-            auth ->auth
-                    .requestMatchers(HttpMethod.POST, "/product").hasRole("ADMIN")
-
-                    .anyRequest()
-                    .permitAll());
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(HttpMethod.POST, "/auth/login")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/auth/register")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/user")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/product")
+                    .hasRole("ADMIN")
+            //                    .anyRequest().permitAll() // Temp
+            )
+        .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(
-          AuthenticationConfiguration authConfig) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
+      throws Exception {
     return authConfig.getAuthenticationManager();
   }
-
 }

@@ -11,31 +11,27 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+  @Autowired private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private TokenService tokenService;
+  @Autowired private UserService userService;
+  @Autowired private TokenService tokenService;
 
-    public void authenticateUser(String email, String pwd) {
-        var userPassword = new UsernamePasswordAuthenticationToken(email, pwd);
-        this.authenticationManager.authenticate(userPassword);
-    }
+  public void authenticateUser(String email, String pwd) {
+    var userPassword = new UsernamePasswordAuthenticationToken(email, pwd);
+    this.authenticationManager.authenticate(userPassword);
+  }
 
-    public String login(String email, String password){
-        authenticateUser(email,password);
-        var user = userService.findByEmail(email);
-        return tokenService.generateToken(user);
-    }
+  public String login(String email, String password) {
+    authenticateUser(email, password);
+    var user = userService.findByEmail(email);
+    return tokenService.generateToken(user);
+  }
 
-    public ResponseUserDTO register(CreateUserDTO createUserDTO){
-        return userService.create(createUserDTO);
-    }
+  public ResponseUserDTO register(CreateUserDTO createUserDTO) {
+    return userService.create(createUserDTO);
+  }
 
-    public String refreshToken(String token){
-        return null; //pending part
-    }
-
+  public String refreshToken(String token) {
+    return null; // pending part
+  }
 }

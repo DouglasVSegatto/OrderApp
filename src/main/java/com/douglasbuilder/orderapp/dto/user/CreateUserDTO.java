@@ -26,4 +26,12 @@ public class CreateUserDTO {
 
   @NotBlank(message = "Roles is required")
   String role;
+
+  public void setEmail(String email) {
+    this.email = email.toLowerCase();
+  }
+
+  public void setRole(String role) {
+    this.role = role.toUpperCase();
+  }
 }

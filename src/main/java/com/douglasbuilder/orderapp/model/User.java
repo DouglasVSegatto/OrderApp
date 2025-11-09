@@ -2,7 +2,6 @@ package com.douglasbuilder.orderapp.model;
 
 import com.douglasbuilder.orderapp.model.enumetations.UserRoles;
 import jakarta.persistence.*;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -42,7 +41,7 @@ public class User implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    if (role == null){
+    if (role == null) {
       return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
     return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
