@@ -4,15 +4,13 @@ import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.dto.auth.AuthRequestDTO;
 import com.douglasbuilder.orderapp.dto.auth.LoginResponseDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
+import com.douglasbuilder.orderapp.security.TokenService;
 import com.douglasbuilder.orderapp.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
   @Autowired private AuthService authService;
+  @Autowired private TokenService tokenService;
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody AuthRequestDTO authRequest) {
@@ -33,8 +32,4 @@ public class AuthController {
     return ResponseEntity.status(201).body(new ApiResponse<>(user));
   }
 
-  @PostMapping("/refreshToken")
-  public ResponseEntity<?> refreshToken() {
-    return null;
-  }
 }

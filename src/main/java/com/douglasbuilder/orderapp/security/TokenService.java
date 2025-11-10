@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class TokenService {
 
   int EXPIRATION_TIME_SEC = 7200;
+  int SECONDS_TO_EXPIRE = 1800;
   private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
   @Value("${api.security.token.secret}")
@@ -24,7 +25,6 @@ public class TokenService {
 
   public String generateToken(User user) {
     try {
-      logger.warn("Token Generate at: " + Instant.now());
       Algorithm algorithm = Algorithm.HMAC256(secret);
       return JWT.create()
           .withIssuer("auth-api")
@@ -39,9 +39,7 @@ public class TokenService {
   public String validateToken(String token) {
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);
-      String subject =
-          JWT.require(algorithm).withIssuer("auth-api").build().verify(token).getSubject();
-      return subject;
+      return JWT.require(algorithm).withIssuer("auth-api").build().verify(token).getSubject();
     } catch (TokenExpiredException exception) {
       logger.warn("Token expired for request: {}", exception.getMessage());
       return "";
@@ -73,5 +71,19 @@ public class TokenService {
 
   private Instant getExpirationDate() {
     return Instant.now().plusSeconds(EXPIRATION_TIME_SEC);
+  }
+
+  public boolean isTokenNearExpiry(String token) {
+    try {
+      if (!isTokenExpired(token)) return false;
+
+      var expiration = JWT.decode(token).getExpiresAt();
+      var exThreshold = Instant.now().plusSeconds(SECONDS_TO_EXPIRE);
+      logger.warn("Token time: " + expiration);
+      return expiration.toInstant().isBefore(exThreshold);
+    } catch (JWTDecodeException e) {
+      logger.warn("Token is expired: " + e.getMessage());
+      return true;
+    }
   }
 }

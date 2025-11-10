@@ -30,8 +30,4 @@ public class AuthService {
   public ResponseUserDTO register(CreateUserDTO createUserDTO) {
     return userService.create(createUserDTO);
   }
-
-  public String refreshToken(String token) {
-    return null; // pending part
-  }
 }

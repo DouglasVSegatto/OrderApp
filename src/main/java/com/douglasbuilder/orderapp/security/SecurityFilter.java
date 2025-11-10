@@ -1,5 +1,6 @@
 package com.douglasbuilder.orderapp.security;
 
+import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,22 +30,27 @@ public class SecurityFilter extends OncePerRequestFilter {
     String token = recoverToken(request);
 
     if (token != null) {
-      log.debug("Processing JWT token for request: " + request.getRequestURI()); // ✅ Use log
+      logger.debug("Processing JWT token for request: " + request.getRequestURI());
 
       String email = tokenService.validateToken(token);
       if (!email.isEmpty()) {
         UserDetails user = userRepository.findByEmail(email);
         if (user != null) {
-          log.debug("Authenticated user: " + email); // ✅ Use log
+          logger.debug("Authenticated user: " + email);
+
           var authentication =
               new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
           SecurityContextHolder.getContext().setAuthentication(authentication);
+
+          if (tokenService.isTokenNearExpiry(token)) {
+            String newToken = tokenService.generateToken((User) user);
+            response.setHeader("X-New-Token", "Bearer " + newToken);
+          }
         } else {
-          log.warn("User not found for email: " + email); // ✅ Use log
+          logger.warn("User not found for email: " + email);
         }
       }
     }
-
     filterChain.doFilter(request, response);
   }
 
