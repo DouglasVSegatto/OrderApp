@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,5 +33,13 @@ public class AuthController {
     var user = authService.register(createUserDTO);
     return ResponseEntity.status(201).body(new ApiResponse<>(user));
   }
+
+  //TODO review method.
+  @PostMapping("/logout")
+  public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetails currentUser){
+    return ResponseEntity.ok().body("User " + currentUser.getUsername() + "logged out");
+  }
+
+  //TODO future to consider - forgot password - reset password - verify email
 
 }
