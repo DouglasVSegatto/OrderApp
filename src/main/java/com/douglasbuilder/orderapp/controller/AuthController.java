@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
   @Autowired private AuthService authService;
-  @Autowired private TokenService tokenService;
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody AuthRequestDTO authRequest) {
@@ -34,8 +33,8 @@ public class AuthController {
 
   //TODO review method.
   @PostMapping("/logout")
-  public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetails currentUser){
-    return ResponseEntity.ok().body("User " + currentUser.getUsername() + "logged out");
+  public ResponseEntity<?> logout(){
+    return ResponseEntity.ok().body("User " + authService.getCurrentUser().getEmail() + "logged out");
   }
 
   //TODO future to consider - forgot password - reset password - verify email

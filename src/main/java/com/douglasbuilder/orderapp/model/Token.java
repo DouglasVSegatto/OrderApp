@@ -1,9 +1,6 @@
 package com.douglasbuilder.orderapp.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -12,17 +9,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "tokens")
 public class Token {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column private String refreshToken;
+    @Column private String Token;
     @Column private Instant expiresAt;
-    @Column private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     //TODO LoggedOut attribute?
 
 }

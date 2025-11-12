@@ -2,20 +2,25 @@ package com.douglasbuilder.orderapp.service;
 
 import com.douglasbuilder.orderapp.dto.auth.AuthResponseDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
+import com.douglasbuilder.orderapp.dto.user.ResponseUserDTO;
 import com.douglasbuilder.orderapp.exceptions.user.DuplicateEmailException;
+import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.model.Token;
+import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
 import com.douglasbuilder.orderapp.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
   @Autowired private AuthenticationManager authenticationManager;
-
   @Autowired private UserService userService;
   @Autowired private TokenService tokenService;
   @Autowired private TokenRepository tokenRepository;
@@ -34,23 +39,27 @@ public class AuthService {
     var refreshToken = tokenService.generateRefreshToken(user);
     saveRefreshToken(refreshToken);
     // TODO RevokeAllTokenByUser --
-    return new AuthResponseDTO(accessToken, refreshToken, "Login successful");
+    return new AuthResponseDTO(accessToken.getToken(), refreshToken.getToken(), "Login successful");
   }
 
-  public AuthResponseDTO register(CreateUserDTO createUserDTO) {
+  public ResponseUserDTO register(CreateUserDTO createUserDTO) {
 
     if (userService.emailExists(createUserDTO.getEmail())) {
       throw new DuplicateEmailException("User already exists.");
     }
     var user = userService.create(createUserDTO);
-    var accessToken = tokenService.generateAccessToken(user);
-    var refreshToken = tokenService.generateRefreshToken(user);
-    saveRefreshToken(refreshToken);
-
-    return new AuthResponseDTO(accessToken, refreshToken, "Registered successful");
+    return new ResponseUserDTO(user.getFullName(), user.getEmail(), "Registered successful");
   }
 
   private void saveRefreshToken(Token token) {
     tokenRepository.save(token);
+  }
+
+  public User getCurrentUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+      return userService.findByEmail(authentication.getName());
+    }
+    throw new UserNotFoundException("No authenticated user found");
   }
 }

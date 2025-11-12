@@ -43,7 +43,7 @@ public class TokenService {
               .sign(algorithm);
 
       Token token = new Token();
-      token.setRefreshToken(tokenValue);
+      token.setToken(tokenValue);
       token.setExpiresAt(expiresAt);
       token.setUser(user);
       return token;
