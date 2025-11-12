@@ -1,7 +1,6 @@
 package com.douglasbuilder.orderapp.security;
 
-import com.douglasbuilder.orderapp.model.User;
-import com.douglasbuilder.orderapp.repository.UserRepository;
+import com.douglasbuilder.orderapp.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class SecurityFilter extends OncePerRequestFilter {
 
   private final TokenService tokenService;
-  private final UserRepository userRepository;
+  private final UserService userService;
 
   @Override
   protected void doFilterInternal(
@@ -34,7 +33,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
       String email = tokenService.validateToken(token);
       if (!email.isEmpty()) {
-        UserDetails user = userRepository.findByEmail(email);
+        UserDetails user = userService.findByEmail(email);
         if (user != null) {
           logger.debug("Authenticated user: " + email);
 
@@ -42,10 +41,6 @@ public class SecurityFilter extends OncePerRequestFilter {
               new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
           SecurityContextHolder.getContext().setAuthentication(authentication);
 
-          if (tokenService.isTokenNearExpiry(token)) {
-            String newToken = tokenService.generateToken((User) user);
-            response.setHeader("X-New-Token", "Bearer " + newToken);
-          }
         } else {
           logger.warn("User not found for email: " + email);
         }

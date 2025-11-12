@@ -33,20 +33,16 @@ public class UserService implements UserDetailsService {
     return userRepository.findAll();
   }
 
-  public ResponseUserDTO create(CreateUserDTO createUserDTO) {
-    boolean emailExists = userRepository.existsByEmail(createUserDTO.getEmail());
-    if (emailExists) {
-      throw new DuplicateEmailException("Email already in use: " + createUserDTO.getEmail());
-    }
+  public boolean emailExists(String email){ return userRepository.existsByEmail(email);}
 
-    // MapStruct will handle the mapping from CreateUserDTO to User entity
+  public User create(CreateUserDTO createUserDTO) {
+
     var user = userMapper.toModel(createUserDTO);
 
     user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-    var createdUser = userRepository.save(user);
+    return userRepository.save(user);
 
-    return userMapper.toDto(createdUser);
   }
 
   public ResponseUserDTO findById(UUID id) {

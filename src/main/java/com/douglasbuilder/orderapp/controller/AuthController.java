@@ -2,7 +2,7 @@ package com.douglasbuilder.orderapp.controller;
 
 import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.dto.auth.AuthRequestDTO;
-import com.douglasbuilder.orderapp.dto.auth.LoginResponseDTO;
+import com.douglasbuilder.orderapp.dto.auth.AuthResponseDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
 import com.douglasbuilder.orderapp.security.TokenService;
 import com.douglasbuilder.orderapp.service.AuthService;
@@ -24,14 +24,12 @@ public class AuthController {
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody AuthRequestDTO authRequest) {
-    String token = authService.login(authRequest.getEmail(), authRequest.getPassword());
-    return ResponseEntity.ok(new LoginResponseDTO(token, "Bearer"));
+    return ResponseEntity.ok(authService.login(authRequest.getEmail(), authRequest.getPassword()));
   }
 
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@Valid @RequestBody CreateUserDTO createUserDTO) {
-    var user = authService.register(createUserDTO);
-    return ResponseEntity.status(201).body(new ApiResponse<>(user));
+    return ResponseEntity.status(201).body(authService.register(createUserDTO));
   }
 
   //TODO review method.

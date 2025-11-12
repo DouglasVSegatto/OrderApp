@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.douglasbuilder.orderapp.model.Token;
 import com.douglasbuilder.orderapp.model.User;
 import java.time.Instant;
 import org.slf4j.Logger;
@@ -16,24 +17,47 @@ import org.springframework.stereotype.Service;
 @Service
 public class TokenService {
 
-  int EXPIRATION_TIME_SEC = 7200;
+  // TODO update to real expected time after tests
+
   int SECONDS_TO_EXPIRE = 1800;
   private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
   @Value("${api.security.token.secret}")
   private String secret;
 
-  public String generateToken(User user) {
+  @Value("${application.security.token.access-token-expiration}")
+  private int accessTokenExpireTime;
+
+  @Value("${application.security.token.refresh-token-expiration}")
+  private int refreshTokenExpireTime;
+
+  private Token generateToken(User user, int expirationTime) {
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);
-      return JWT.create()
-          .withIssuer("auth-api")
-          .withSubject(user.getEmail())
-          .withExpiresAt(getExpirationDate())
-          .sign(algorithm);
+      Instant expiresAt = getExpirationDate(expirationTime);
+      String tokenValue =
+          JWT.create()
+              .withIssuer("auth-api")
+              .withSubject(user.getEmail())
+              .withExpiresAt(expiresAt)
+              .sign(algorithm);
+
+      Token token = new Token();
+      token.setRefreshToken(tokenValue);
+      token.setExpiresAt(expiresAt);
+      token.setUser(user);
+      return token;
     } catch (JWTCreationException exception) {
       throw new RuntimeException("Error while generating token", exception);
     }
+  }
+
+  public Token generateRefreshToken(User user) {
+    return generateToken(user, refreshTokenExpireTime);
+  }
+
+  public Token generateAccessToken(User user) {
+    return generateToken(user, accessTokenExpireTime);
   }
 
   public String validateToken(String token) {
@@ -69,21 +93,11 @@ public class TokenService {
     }
   }
 
-  private Instant getExpirationDate() {
-    return Instant.now().plusSeconds(EXPIRATION_TIME_SEC);
+  private Instant getExpirationDate(int expirationTime) {
+    return Instant.now().plusSeconds(expirationTime);
   }
 
-  public boolean isTokenNearExpiry(String token) {
-    try {
-      if (!isTokenExpired(token)) return false;
+  public void deleteTokens(String Token) {}
 
-      var expiration = JWT.decode(token).getExpiresAt();
-      var exThreshold = Instant.now().plusSeconds(SECONDS_TO_EXPIRE);
-      logger.warn("Token time: " + expiration);
-      return expiration.toInstant().isBefore(exThreshold);
-    } catch (JWTDecodeException e) {
-      logger.warn("Token is expired: " + e.getMessage());
-      return true;
-    }
-  }
+  public void deleteUserTokens(User user) {}
 }
