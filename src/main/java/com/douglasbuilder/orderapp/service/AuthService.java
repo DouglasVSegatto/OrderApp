@@ -39,7 +39,7 @@ public class AuthService {
 
     var user = userService.findByEmail(email);
 
-    tokenService.deleteUserTokens(user);
+    tokenRepository.deleteAllByUser(user);
 
     var accessToken = tokenService.generateAccessToken(user);
     var refreshToken = tokenService.generateRefreshToken(user);
