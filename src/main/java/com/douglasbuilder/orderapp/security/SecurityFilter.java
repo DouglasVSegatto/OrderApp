@@ -26,26 +26,16 @@ public class SecurityFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
+
     String token = recoverToken(request);
-
-    if (token != null) {
-      logger.debug("Processing JWT token for request: " + request.getRequestURI());
-
-      String email = tokenService.validateToken(token);
-      if (!email.isEmpty()) {
-        UserDetails user = userService.findByEmail(email);
-        if (user != null) {
-          logger.debug("Authenticated user: " + email);
-
-          var authentication =
-              new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-          SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        } else {
-          logger.warn("User not found for email: " + email);
-        }
-      }
+    if (token != null && tokenService.isTokenValid(token)) {
+      String email = tokenService.extractTokenSubject(token);
+      UserDetails user = userService.findByEmail(email);
+      var authentication =
+          new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+      SecurityContextHolder.getContext().setAuthentication(authentication);
     }
+
     filterChain.doFilter(request, response);
   }
 

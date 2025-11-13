@@ -3,13 +3,17 @@ package com.douglasbuilder.orderapp.service;
 import com.douglasbuilder.orderapp.dto.auth.AuthResponseDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
 import com.douglasbuilder.orderapp.dto.user.ResponseUserDTO;
+import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
+import com.douglasbuilder.orderapp.exceptions.auth.AuthTokenExpiredException;
 import com.douglasbuilder.orderapp.exceptions.user.DuplicateEmailException;
 import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.model.Token;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
 import com.douglasbuilder.orderapp.security.TokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,10 +39,11 @@ public class AuthService {
 
     var user = userService.findByEmail(email);
 
+    tokenService.deleteUserTokens(user);
+
     var accessToken = tokenService.generateAccessToken(user);
     var refreshToken = tokenService.generateRefreshToken(user);
     saveRefreshToken(refreshToken);
-    // TODO RevokeAllTokenByUser --
     return new AuthResponseDTO(accessToken.getToken(), refreshToken.getToken(), "Login successful");
   }
 
@@ -61,5 +66,36 @@ public class AuthService {
       return userService.findByEmail(authentication.getName());
     }
     throw new UserNotFoundException("No authenticated user found");
+  }
+
+  public AuthResponseDTO refreshToken(HttpServletRequest request) {
+    String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+      throw new AuthInvalidCredentialsException("Missing or invalid authorization header");
+    }
+
+    String refreshToken = authHeader.replace("Bearer ", "");
+
+    if (!tokenService.isTokenValid(refreshToken)) {
+      throw new AuthTokenExpiredException("Refresh Token has expired");
+    }
+
+    String email = tokenService.extractTokenSubject(refreshToken);
+    User user = userService.findByEmail(email);
+
+    tokenRepository.deleteAllByUser(user);
+
+    Token newAccessToken = tokenService.generateAccessToken(user);
+    Token newRefreshToken = tokenService.generateRefreshToken(user);
+
+    saveRefreshToken(newRefreshToken);
+
+    return new AuthResponseDTO(
+        newAccessToken.getToken(), newRefreshToken.getToken(), "Tokens refreshed successfully");
+  }
+
+  public void logout() {
+    tokenRepository.deleteAllByUser(getCurrentUser());
   }
 }

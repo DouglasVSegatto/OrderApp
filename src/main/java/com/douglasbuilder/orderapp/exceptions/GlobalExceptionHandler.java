@@ -3,6 +3,8 @@ package com.douglasbuilder.orderapp.exceptions;
 import com.douglasbuilder.orderapp.dto.api.ApiErrorDTO;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthException;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
+import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidTokenException;
+import com.douglasbuilder.orderapp.exceptions.auth.AuthTokenExpiredException;
 import com.douglasbuilder.orderapp.exceptions.cart.CartException;
 import com.douglasbuilder.orderapp.exceptions.cart.CartNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemException;
@@ -156,5 +158,18 @@ public class GlobalExceptionHandler {
       AuthInvalidCredentialsException e) {
     ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Invalid credentials", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+  }
+  @ExceptionHandler(AuthTokenExpiredException.class)
+  public ResponseEntity<AuthTokenExpiredException> handlerAuthRefreshTokenExpiredException(
+          AuthTokenExpiredException e) {
+    ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Token has expired", e.getMessage());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e);
+  }
+
+  @ExceptionHandler(AuthInvalidTokenException.class)
+  public ResponseEntity<AuthInvalidTokenException> handlerAuthInvalidTokenException(
+          AuthInvalidTokenException e) {
+    ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Invalid Token", e.getMessage());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e);
   }
 }
