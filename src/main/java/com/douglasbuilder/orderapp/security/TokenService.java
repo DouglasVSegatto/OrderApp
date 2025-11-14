@@ -35,9 +35,13 @@ public class TokenService {
     this.tokenRepository = tokenRepository;
   }
 
+  private Algorithm getAlgorithm() {
+    return Algorithm.HMAC256(secret);
+  }
+
   private Token generateToken(User user, int expirationTime, String tokenType) {
     try {
-      Algorithm algorithm = Algorithm.HMAC256(secret);
+      var algorithm = getAlgorithm();
       Instant expiresAt = getExpirationDate(expirationTime);
       String tokenValue =
           JWT.create()
@@ -67,7 +71,7 @@ public class TokenService {
 
   public boolean isTokenValid(String token) {
     try {
-      Algorithm algorithm = Algorithm.HMAC256(secret);
+      var algorithm = getAlgorithm();
       JWT.require(algorithm).withIssuer("auth-api").build().verify(token);
 
       if (isRefreshToken(token) && !tokenRepository.existsByToken(token)) {
@@ -94,7 +98,7 @@ public class TokenService {
 
   public boolean isRefreshToken(String token) {
     try {
-      return JWT.decode(token).getClaim("type").toString().toUpperCase().equals(TokenType.REFRESH);
+      return TokenType.REFRESH.toString().equals(JWT.decode(token).getClaim("type").asString());
     } catch (JWTDecodeException exception) {
       throw new RuntimeException("Invalid token format", exception);
     }
