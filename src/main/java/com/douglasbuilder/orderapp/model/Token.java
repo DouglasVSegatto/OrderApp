@@ -19,7 +19,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column private String Token;
+    @Column private String token;
     @Column private Instant expiresAt;
 
     @ManyToOne

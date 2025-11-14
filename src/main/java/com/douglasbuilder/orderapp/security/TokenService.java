@@ -5,8 +5,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
 import com.douglasbuilder.orderapp.model.Token;
 import com.douglasbuilder.orderapp.model.User;
+import com.douglasbuilder.orderapp.model.enumetations.TokenType;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
 import java.time.Instant;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class TokenService {
 
   private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
+  private final TokenRepository tokenRepository;
 
   @Value(value = "${api.security.token.secret}")
   private String secret;
@@ -28,8 +31,12 @@ public class TokenService {
   @Value(value = "${application.security.token.refresh-token-expiration}")
   private int refreshTokenExpireTime;
 
+  public TokenService(TokenRepository tokenRepository) {
+    this.tokenRepository = tokenRepository;
+  }
 
-  private Token generateToken(User user, int expirationTime) {
+
+  private Token generateToken(User user, int expirationTime, String tokenType) {
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);
       Instant expiresAt = getExpirationDate(expirationTime);
@@ -37,6 +44,7 @@ public class TokenService {
           JWT.create()
               .withIssuer("auth-api")
               .withSubject(user.getEmail())
+              .withClaim("type", tokenType)
               .withExpiresAt(expiresAt)
               .sign(algorithm);
 
@@ -51,17 +59,21 @@ public class TokenService {
   }
 
   public Token generateRefreshToken(User user) {
-    return generateToken(user, refreshTokenExpireTime);
+    return generateToken(user, refreshTokenExpireTime, TokenType.REFRESH.toString());
   }
 
   public Token generateAccessToken(User user) {
-    return generateToken(user, accessTokenExpireTime);
+    return generateToken(user, accessTokenExpireTime, TokenType.ACCESS.toString());
   }
 
   public boolean isTokenValid(String token) {
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);
       JWT.require(algorithm).withIssuer("auth-api").build().verify(token);
+
+      if(isRefreshToken(token) && !tokenRepository.existsByToken(token)){
+        throw new AuthInvalidCredentialsException("Invalid refresh token");
+      }
       return true;
     } catch (JWTVerificationException exception) {
       logger.warn("Token security issue: {}", exception.getMessage());
@@ -80,4 +92,13 @@ public class TokenService {
   private Instant getExpirationDate(int expirationTime) {
     return Instant.now().plusSeconds(expirationTime);
   }
+
+  public boolean isRefreshToken(String token) {
+    try {
+      return JWT.decode(token).getClaim("type").toString().toUpperCase().equals(TokenType.REFRESH);
+    } catch (JWTDecodeException exception) {
+      throw new RuntimeException("Invalid token format", exception);
+    }
+  }
+
 }
