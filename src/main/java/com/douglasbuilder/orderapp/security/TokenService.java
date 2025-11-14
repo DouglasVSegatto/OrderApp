@@ -18,18 +18,15 @@ import org.springframework.stereotype.Service;
 public class TokenService {
   private final TokenRepository tokenRepository;
 
-  // TODO update to real expected time after tests
-
-  int SECONDS_TO_EXPIRE = 1800;
   private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
-  @Value("${api.security.token.secret}")
+  @Value(value = "${api.security.token.secret}")
   private String secret;
 
-  @Value("${application.security.token.access-token-expiration}")
+  @Value(value = "${application.security.token.access-token-expiration}")
   private int accessTokenExpireTime;
 
-  @Value("${application.security.token.refresh-token-expiration}")
+  @Value(value = "${application.security.token.refresh-token-expiration}")
   private int refreshTokenExpireTime;
 
   public TokenService(TokenRepository tokenRepository) {

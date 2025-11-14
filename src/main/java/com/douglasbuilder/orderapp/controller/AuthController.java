@@ -6,12 +6,14 @@ import com.douglasbuilder.orderapp.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/auth")
 public class AuthController {
 
@@ -35,7 +37,7 @@ public class AuthController {
         .body("User " + authService.getCurrentUser().getEmail() + "logged out");
   }
 
-  @PostMapping("/refreshToken")
+  @PostMapping("/refresh-token")
   public ResponseEntity<?> refreshToken(HttpServletRequest request) {
     return ResponseEntity.ok().body(authService.refreshToken(request));
   }

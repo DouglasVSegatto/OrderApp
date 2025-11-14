@@ -34,6 +34,8 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/register")
                     .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/auth/refresh-token")
+                    .permitAll()
                     .requestMatchers(HttpMethod.GET, "/user")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/product")

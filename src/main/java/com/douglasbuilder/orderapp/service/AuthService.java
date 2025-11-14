@@ -12,6 +12,7 @@ import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
 import com.douglasbuilder.orderapp.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,8 +21,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class AuthService {
 
   @Autowired private AuthenticationManager authenticationManager;
@@ -34,6 +37,7 @@ public class AuthService {
     this.authenticationManager.authenticate(userPassword);
   }
 
+  @Transactional
   public AuthResponseDTO login(String email, String password) {
     authenticateUser(email, password);
 
@@ -68,9 +72,9 @@ public class AuthService {
     throw new UserNotFoundException("No authenticated user found");
   }
 
+  @Transactional
   public AuthResponseDTO refreshToken(HttpServletRequest request) {
     String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
       throw new AuthInvalidCredentialsException("Missing or invalid authorization header");
     }
@@ -88,13 +92,13 @@ public class AuthService {
 
     Token newAccessToken = tokenService.generateAccessToken(user);
     Token newRefreshToken = tokenService.generateRefreshToken(user);
-
     saveRefreshToken(newRefreshToken);
 
     return new AuthResponseDTO(
         newAccessToken.getToken(), newRefreshToken.getToken(), "Tokens refreshed successfully");
   }
 
+  @Transactional
   public void logout() {
     tokenRepository.deleteAllByUser(getCurrentUser());
   }
