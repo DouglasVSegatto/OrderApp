@@ -33,8 +33,7 @@ public class AuthController {
   @PostMapping("/logout")
   public ResponseEntity<?> logout() {
     authService.logout();
-    return ResponseEntity.ok()
-        .body("User " + authService.getCurrentUser().getEmail() + "logged out");
+    return ResponseEntity.ok().build();
   }
 
   @PostMapping("/refresh-token")

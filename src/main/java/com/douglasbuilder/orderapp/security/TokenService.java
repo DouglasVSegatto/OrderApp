@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TokenService {
-  private final TokenRepository tokenRepository;
 
   private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
@@ -29,9 +28,6 @@ public class TokenService {
   @Value(value = "${application.security.token.refresh-token-expiration}")
   private int refreshTokenExpireTime;
 
-  public TokenService(TokenRepository tokenRepository) {
-    this.tokenRepository = tokenRepository;
-  }
 
   private Token generateToken(User user, int expirationTime) {
     try {
