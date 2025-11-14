@@ -7,6 +7,7 @@ import com.douglasbuilder.orderapp.exceptions.order.OrderNotFoundException;
 import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.Order;
+import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.model.enumetations.CartStatus;
 import com.douglasbuilder.orderapp.repository.CartRepository;
 import com.douglasbuilder.orderapp.repository.OrderRepository;
@@ -27,21 +28,21 @@ public class OrderService {
   private final ProductService productService;
   private final CartRepository cartRepository;
 
-  public List<Order> getOrdersByUserId(UUID userId) {
-    return orderRepository.findAllByUserId(userId);
+  public List<Order> getOrdersByUser(User user) {
+    return orderRepository.findAllByUser(user);
   }
 
-  public Order getOrderById(UUID orderId) {
+  public Order getOrderByIdAndUser(UUID orderId, User user) {
     return orderRepository
-        .findById(orderId)
+        .findByIdAndUser(orderId, user)
         .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
   }
 
   @Transactional
-  public void cancelOrder(UUID orderId) {
+  public void cancelOrder(UUID orderId, User user) {
     Order order =
         orderRepository
-            .findById(orderId)
+            .findByIdAndUser(orderId, user)
             .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
 
     if (order.getCart().getStatus() != CartStatus.PAID) {
@@ -60,10 +61,10 @@ public class OrderService {
   }
 
   @Transactional
-  public void payOrder(UUID cartId) {
+  public void payOrder(UUID cartId, User user) {
     Cart cart =
         cartRepository
-            .findById(cartId)
+            .findByIdAndUser(cartId, user)
             .orElseThrow(() -> new OrderNotFoundException("Order ID: " + cartId));
 
     if (cart.getStatus().equals(CartStatus.PAID)) {
@@ -89,8 +90,7 @@ public class OrderService {
     orderRepository.save(order);
   }
 
-  @Transactional
-  public Order createOrder(Cart cart) {
+  private Order createOrder(Cart cart) {
 
     return Order.builder()
         .cart(cart)
@@ -101,7 +101,7 @@ public class OrderService {
         .build();
   }
 
-  public void deleteOrderById(UUID orderId) {
-    orderRepository.delete(getOrderById(orderId));
+  public void deleteOrderById(UUID orderId, User user) {
+    orderRepository.delete(getOrderByIdAndUser(orderId, user));
   }
 }

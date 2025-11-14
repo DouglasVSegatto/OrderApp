@@ -1,6 +1,7 @@
 package com.douglasbuilder.orderapp.controller;
 
 import com.douglasbuilder.orderapp.model.Order;
+import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.service.OrderService;
 import java.util.List;
 import java.util.UUID;
@@ -17,32 +18,32 @@ public class OrderController {
   private final OrderService orderService;
 
   @GetMapping
-  public ResponseEntity<?> getUserOrders(@RequestParam UUID userId) {
-    List<Order> orders = orderService.getOrdersByUserId(userId);
+  public ResponseEntity<?> getUserOrders(User user) {
+    List<Order> orders = orderService.getOrdersByUser(user);
     return ResponseEntity.ok(orders);
   }
 
   @GetMapping("/{orderId}")
-  public ResponseEntity<?> getOrder(@PathVariable UUID orderId) {
-    Order order = orderService.getOrderById(orderId);
+  public ResponseEntity<?> getOrder(@PathVariable UUID orderId, User user) {
+    Order order = orderService.getOrderByIdAndUser(orderId, user);
     return ResponseEntity.ok(order);
   }
 
   @PostMapping("/{orderId}/cancel")
-  public ResponseEntity<?> cancelOrder(@PathVariable UUID orderId) {
-    orderService.cancelOrder(orderId);
+  public ResponseEntity<?> cancelOrder(@PathVariable UUID orderId, User user) {
+    orderService.cancelOrder(orderId, user);
     return ResponseEntity.ok().build();
   }
 
   @PostMapping("/{cartId}/pay")
-  public ResponseEntity<?> payOrder(@PathVariable UUID cartId) {
-    orderService.payOrder(cartId);
+  public ResponseEntity<?> payOrder(@PathVariable UUID cartId, User user) {
+    orderService.payOrder(cartId, user);
     return ResponseEntity.ok().build();
   }
 
   @DeleteMapping("/{orderId}/delete")
-  public ResponseEntity<?> deleteOrderById(@PathVariable UUID orderId) {
-    orderService.deleteOrderById(orderId);
+  public ResponseEntity<?> deleteOrderById(@PathVariable UUID orderId, User user) {
+    orderService.deleteOrderById(orderId, user);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }

@@ -98,7 +98,7 @@ public class AuthService {
   }
 
   @Transactional
-  public void logout() {
-    tokenRepository.deleteAllByUser(getCurrentUser());
+  public void logout(User user) {
+    tokenRepository.deleteAllByUser(user);
   }
 }

@@ -28,42 +28,41 @@ public class CartController {
   }
 
   @GetMapping("/active")
-  public ResponseEntity<?> getActiveCart(@RequestParam UUID userId) {
-    Cart cart = cartService.findActiveCartByUserId(userId);
+  public ResponseEntity<?> getActiveCart(User user) {
+    Cart cart = cartService.findActiveCartByUser(user);
     return ResponseEntity.status(HttpStatus.OK).body(cart);
   }
 
-  @DeleteMapping
-  public ResponseEntity<?> deleteCart(@RequestParam UUID userId) {
-    cartService.deleteCart(userId);
+  @DeleteMapping("/{cartId}/delete")
+  public ResponseEntity<?> deleteCart(@PathVariable UUID cartId,User user) {
+    cartService.deleteCart(cartId, user);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   @PutMapping("/status/{status}")
-  public ResponseEntity<?> updateCartStatus(
-      @RequestParam UUID userId, @PathVariable String status) {
-    cartService.updateCartStatus(userId, status);
+  public ResponseEntity<?> updateCartStatus(User user, @PathVariable String status) {
+    cartService.updateCartStatus(user, status);
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
   // CART ITEM RELATED
 
   @PostMapping("/{productId}/addItem")
-  public ResponseEntity<?> addItem(@RequestParam UUID userId, @PathVariable UUID productId) {
-    cartService.addItem(userId, productId);
+  public ResponseEntity<?> addItem(User user, @PathVariable UUID productId) {
+    cartService.addItem(user, productId);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
   @DeleteMapping("/items/{itemId}")
-  public ResponseEntity<?> deleteItem(@RequestParam UUID userId, @PathVariable Long itemId) {
-    cartService.deleteItem(userId, itemId);
+  public ResponseEntity<?> deleteItem(User user, @PathVariable Long itemId) {
+    cartService.deleteItem(user, itemId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   @PutMapping("/items/{itemId}/quantity/{quantity}")
   public ResponseEntity<?> updateItemQuantity(
-      @RequestParam UUID userId, @PathVariable Long itemId, @PathVariable Integer quantity) {
-    CartItem updatedCartItem = cartService.updateCartItem(userId, itemId, quantity);
+      User user, @PathVariable Long itemId, @PathVariable Integer quantity) {
+    CartItem updatedCartItem = cartService.updateCartItem(user, itemId, quantity);
     return ResponseEntity.status(HttpStatus.OK)
         .body(cartMapper.toCartItemResponseDTO(updatedCartItem));
   }
