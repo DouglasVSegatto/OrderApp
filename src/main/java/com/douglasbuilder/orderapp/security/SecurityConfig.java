@@ -34,11 +34,7 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/refresh-token")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/user")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/product")
-                    .hasRole("ADMIN")
-            //                    .anyRequest().permitAll() // Temp
+                    .anyRequest().authenticated()
             )
         .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
