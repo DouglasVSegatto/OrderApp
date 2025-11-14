@@ -12,8 +12,8 @@ import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
 import com.douglasbuilder.orderapp.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,12 +25,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AuthService {
 
-  @Autowired private AuthenticationManager authenticationManager;
-  @Autowired private UserService userService;
-  @Autowired private TokenService tokenService;
-  @Autowired private TokenRepository tokenRepository;
+  private final AuthenticationManager authenticationManager;
+  private final UserService userService;
+  private final TokenService tokenService;
+  private final TokenRepository tokenRepository;
 
   private void authenticateUser(String email, String pwd) {
     var userPassword = new UsernamePasswordAuthenticationToken(email, pwd);

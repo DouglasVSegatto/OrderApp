@@ -6,21 +6,18 @@ import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.service.CartService;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/cart")
+@RequiredArgsConstructor
 public class CartController {
 
   private final CartMapper cartMapper;
   private final CartService cartService;
-
-  public CartController(CartMapper cartMapper, CartService cartService) {
-    this.cartMapper = cartMapper;
-    this.cartService = cartService;
-  }
 
   // CART RELATED
   @GetMapping

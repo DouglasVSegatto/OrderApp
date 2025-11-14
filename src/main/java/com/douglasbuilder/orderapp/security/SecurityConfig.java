@@ -1,6 +1,5 @@
 package com.douglasbuilder.orderapp.security;
 
-import com.douglasbuilder.orderapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +18,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final UserService userService;
   private final SecurityFilter securityFilter;
 
   /* Current setting configs for basic tests, not final config yet */

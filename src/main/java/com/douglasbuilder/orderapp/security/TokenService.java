@@ -35,7 +35,6 @@ public class TokenService {
     this.tokenRepository = tokenRepository;
   }
 
-
   private Token generateToken(User user, int expirationTime, String tokenType) {
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -71,7 +70,7 @@ public class TokenService {
       Algorithm algorithm = Algorithm.HMAC256(secret);
       JWT.require(algorithm).withIssuer("auth-api").build().verify(token);
 
-      if(isRefreshToken(token) && !tokenRepository.existsByToken(token)){
+      if (isRefreshToken(token) && !tokenRepository.existsByToken(token)) {
         throw new AuthInvalidCredentialsException("Invalid refresh token");
       }
       return true;
@@ -100,5 +99,4 @@ public class TokenService {
       throw new RuntimeException("Invalid token format", exception);
     }
   }
-
 }
