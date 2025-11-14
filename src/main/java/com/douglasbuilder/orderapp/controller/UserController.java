@@ -45,11 +45,4 @@ public class UserController {
     userService.updateById(id, updateUserDTO);
     return ResponseEntity.ok().build();
   }
-
-  @PutMapping("/{id}/password")
-  public ResponseEntity<?> changeUserPassword(
-      @PathVariable UUID id, @RequestBody UpdatePasswordUserDTO dto) {
-    userService.changePassword(id, dto.getCurrentPassword(), dto.getNewPassword());
-    return ResponseEntity.ok().build();
-  }
 }

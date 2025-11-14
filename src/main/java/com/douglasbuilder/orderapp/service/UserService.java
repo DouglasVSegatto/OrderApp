@@ -1,14 +1,18 @@
 package com.douglasbuilder.orderapp.service;
 
+import com.douglasbuilder.orderapp.dto.profile.ProfileChangePasswordDTO;
+import com.douglasbuilder.orderapp.dto.profile.ProfileResponseDTO;
+import com.douglasbuilder.orderapp.dto.profile.ProfileUpdateDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
 import com.douglasbuilder.orderapp.dto.user.ResponseUserDTO;
 import com.douglasbuilder.orderapp.dto.user.UpdateUserDTO;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
-import com.douglasbuilder.orderapp.exceptions.user.DuplicateEmailException;
 import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
+import com.douglasbuilder.orderapp.mappers.ProfileMapper;
 import com.douglasbuilder.orderapp.mappers.UserMapper;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.UserRepository;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.Data;
@@ -28,12 +32,15 @@ public class UserService implements UserDetailsService {
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
   private final InternalUserService internalUserService;
+  private final ProfileMapper profileMapper;
 
   public List<User> getAll() {
     return userRepository.findAll();
   }
 
-  public boolean emailExists(String email){ return userRepository.existsByEmail(email);}
+  public boolean emailExists(String email) {
+    return userRepository.existsByEmail(email);
+  }
 
   public User create(CreateUserDTO createUserDTO) {
 
@@ -42,7 +49,6 @@ public class UserService implements UserDetailsService {
     user.setPassword(passwordEncoder.encode(user.getPassword()));
 
     return userRepository.save(user);
-
   }
 
   public ResponseUserDTO findById(UUID id) {
@@ -79,6 +85,7 @@ public class UserService implements UserDetailsService {
     userMapper.toDto(userUpdated);
   }
 
+  // TODO Duplicated with deleteAccount due to new authentication - TO REVIEW
   public void deleteById(UUID id) {
     boolean idExists = userRepository.existsById(id);
     if (!idExists) {
@@ -87,22 +94,35 @@ public class UserService implements UserDetailsService {
     userRepository.deleteById(id);
   }
 
-  public void changePassword(UUID id, String currentPassword, String newPassword) {
-    User user = internalUserService.findById(id);
-    if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+  public void deleteAccount(User user) {
+    userRepository.deleteByUser(user);
+  }
+
+  public void changePassword(ProfileChangePasswordDTO dto, User user) {
+
+    if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
       throw new AuthInvalidCredentialsException("Password invalid -- TempMsg");
     }
 
-      if (passwordEncoder.matches(newPassword, user.getPassword())) {
+    if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
       throw new AuthInvalidCredentialsException("New password is same as previous, try again.");
     }
 
-      user.setPassword(passwordEncoder.encode(newPassword));
+    user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
     userRepository.save(user);
   }
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     return userRepository.findByEmail(username);
+  }
+
+  public ProfileResponseDTO getProfile(User user) {
+    return profileMapper.toProfile(user);
+  }
+
+  // TODO to complete!!
+  public ProfileResponseDTO updateProfile(User user, @Valid ProfileUpdateDTO dto) {
+    return null;
   }
 }

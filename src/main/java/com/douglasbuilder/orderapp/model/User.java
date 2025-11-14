@@ -2,6 +2,7 @@ package com.douglasbuilder.orderapp.model;
 
 import com.douglasbuilder.orderapp.model.enumetations.UserRoles;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +35,14 @@ public class User implements UserDetails {
   @Column private String password;
 
   @Column private UserRoles role;
+
+  @Column private LocalDateTime createdAt;
+
+  @Column private LocalDateTime lastLogin;
+
+  @Column private String profilePicture;
+
+  // TODO Future - phoneNumber,bio,achievements, Others...
 
   public String getFullName() {
     return getFirstName() + " " + getLastName();
