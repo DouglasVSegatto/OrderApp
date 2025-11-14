@@ -3,6 +3,7 @@ package com.douglasbuilder.orderapp.controller;
 import com.douglasbuilder.orderapp.mappers.CartMapper;
 import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
+import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.service.CartService;
 import java.util.List;
 import java.util.UUID;
@@ -21,8 +22,8 @@ public class CartController {
 
   // CART RELATED
   @GetMapping
-  public ResponseEntity<?> getAllCartsByUserId(@RequestParam UUID userId) {
-    List<Cart> carts = cartService.findAllCartsByUserId(userId);
+  public ResponseEntity<?> getAllCartsByUser(User user) {
+    List<Cart> carts = cartService.findAllCartsByUser(user);
     return ResponseEntity.status(HttpStatus.OK).body(carts);
   }
 

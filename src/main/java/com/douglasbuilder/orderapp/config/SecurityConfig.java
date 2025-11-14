@@ -1,5 +1,6 @@
-package com.douglasbuilder.orderapp.security;
+package com.douglasbuilder.orderapp.config;
 
+import com.douglasbuilder.orderapp.security.SecurityFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

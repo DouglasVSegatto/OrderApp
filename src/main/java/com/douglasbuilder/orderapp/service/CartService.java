@@ -12,6 +12,7 @@ import com.douglasbuilder.orderapp.mappers.CartMapper;
 import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.Product;
+import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.model.enumetations.CartStatus;
 import com.douglasbuilder.orderapp.repository.CartItemRepository;
 import com.douglasbuilder.orderapp.repository.CartRepository;
@@ -37,10 +38,10 @@ public class CartService {
   private final CartMapper cartMapper;
   private final PriceCalculationService priceCalculationService;
 
-  public List<Cart> findAllCartsByUserId(UUID userId) {
-    List<Cart> carts = cartRepository.findAllByUserId(userId);
+  public List<Cart> findAllCartsByUser(User user) {
+    List<Cart> carts = cartRepository.findAllByUser(user);
     if (carts == null) {
-      throw new CartNotFoundException("User has no Cart, ID:" + userId);
+      throw new CartNotFoundException("User has no Cart, Email:" + user.getEmail());
     }
     return carts;
   }

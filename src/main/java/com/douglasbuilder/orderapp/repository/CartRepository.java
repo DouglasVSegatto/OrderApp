@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface CartRepository extends JpaRepository<Cart, UUID> {
   Cart findByUserId(UUID userId);
 
-  List<Cart> findAllByUserId(UUID userId);
+  List<Cart> findAllByUser(User user);
 
   UUID user(@NotNull User user);
 
