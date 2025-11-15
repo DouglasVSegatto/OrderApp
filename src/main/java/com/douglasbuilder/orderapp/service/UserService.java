@@ -12,6 +12,7 @@ import com.douglasbuilder.orderapp.mappers.ProfileMapper;
 import com.douglasbuilder.orderapp.mappers.UserMapper;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.UserRepository;
+import com.douglasbuilder.orderapp.security.TokenService;
 import jakarta.validation.Valid;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,8 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,6 +38,9 @@ public class UserService implements UserDetailsService {
   private final PasswordEncoder passwordEncoder;
   private final InternalUserService internalUserService;
   private final ProfileMapper profileMapper;
+  private final AuthenticationManager authenticationManager;
+  private final TokenService tokenService;
+  private final AuthService authService;
 
   public List<User> getAll() {
     return userRepository.findAll();
@@ -100,18 +106,19 @@ public class UserService implements UserDetailsService {
     userRepository.deleteByEmail(user.getEmail());
   }
 
+
   public void changePassword(ProfileChangePasswordDTO dto, User user) {
 
-    if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
-      throw new AuthInvalidCredentialsException("Password invalid -- TempMsg");
-    }
+    var userPassword = new UsernamePasswordAuthenticationToken(user.getEmail(), dto.getCurrentPassword());
+    authenticationManager.authenticate(userPassword);
 
     if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
-      throw new AuthInvalidCredentialsException("New password is same as previous, try again.");
+      throw new AuthInvalidCredentialsException("New password must be different from previous, try again.");
     }
 
     user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
     userRepository.save(user);
+    authService.revokeUserTokens(user);
   }
 
   @Override
@@ -142,10 +149,10 @@ public class UserService implements UserDetailsService {
     saveUser(user);
   }
 
-  //TODO Once changed JWT Token won't work, need to define standards prior to update/adjust
   public void updateEmail(@Valid String email, User user) {
     user.setEmail(email);
     saveUser(user);
+    authService.revokeUserTokens(user);
   }
 
   public void updateProfilePicture(@Valid String url, User user) {

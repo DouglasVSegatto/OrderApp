@@ -43,7 +43,7 @@ public class AuthService {
 
     var user = userService.findByEmail(email);
 
-    tokenRepository.deleteAllByUser(user);
+    revokeUserTokens(user);
 
     var accessToken = tokenService.generateAccessToken(user);
     var refreshToken = tokenService.generateRefreshToken(user);
@@ -93,7 +93,7 @@ public class AuthService {
     String email = tokenService.extractTokenSubject(refreshToken);
     User user = userService.findByEmail(email);
 
-    tokenRepository.deleteAllByUser(user);
+    revokeUserTokens(user);
 
     Token newAccessToken = tokenService.generateAccessToken(user);
     Token newRefreshToken = tokenService.generateRefreshToken(user);
@@ -105,6 +105,11 @@ public class AuthService {
 
   @Transactional
   public void logout(User user) {
+    revokeUserTokens(user);
+  }
+
+  @Transactional
+  public void revokeUserTokens(User user) {
     tokenRepository.deleteAllByUser(user);
   }
 }

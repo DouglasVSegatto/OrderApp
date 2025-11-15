@@ -5,6 +5,7 @@ import com.douglasbuilder.orderapp.dto.profile.ProfileResponseDTO;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +52,7 @@ public class ProfileController {
 
   @PutMapping("/email")
   public ResponseEntity<ProfileResponseDTO> updateEmail(
-          @Valid @RequestParam String email, User user) {
+          @Valid @Email @RequestParam String email, User user) {
     userService.updateEmail(email, user);
     return ResponseEntity.ok().build();
   }
