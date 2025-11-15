@@ -44,6 +44,11 @@ public class User implements UserDetails {
 
   // TODO Future - phoneNumber,bio,achievements, Others...
 
+  @PrePersist
+  protected void onCreate(){
+    createdAt = LocalDateTime.now();
+  }
+
   public String getFullName() {
     return getFirstName() + " " + getLastName();
   }

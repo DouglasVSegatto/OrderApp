@@ -12,6 +12,7 @@ import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
 import com.douglasbuilder.orderapp.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,13 +48,18 @@ public class AuthService {
     var accessToken = tokenService.generateAccessToken(user);
     var refreshToken = tokenService.generateRefreshToken(user);
     saveRefreshToken(refreshToken);
+
+    user.setLastLogin(LocalDateTime.now());
+
+    userService.updateLastLogin(user);
+
     return new AuthResponseDTO(accessToken.getToken(), refreshToken.getToken(), "Login successful");
   }
 
   public ResponseUserDTO register(CreateUserDTO createUserDTO) {
 
     if (userService.emailExists(createUserDTO.getEmail())) {
-      throw new DuplicateEmailException("User already exists.");
+      throw new DuplicateEmailException("Email already in use.");
     }
     var user = userService.create(createUserDTO);
     return new ResponseUserDTO(user.getFullName(), user.getEmail(), "Registered successful");

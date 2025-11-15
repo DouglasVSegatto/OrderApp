@@ -2,7 +2,6 @@ package com.douglasbuilder.orderapp.controller;
 
 import com.douglasbuilder.orderapp.dto.profile.ProfileChangePasswordDTO;
 import com.douglasbuilder.orderapp.dto.profile.ProfileResponseDTO;
-import com.douglasbuilder.orderapp.dto.profile.ProfileUpdateDTO;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.service.UserService;
 import jakarta.validation.Valid;
@@ -22,12 +21,6 @@ public class ProfileController {
     return ResponseEntity.ok(userService.getProfile(user));
   }
 
-  @PutMapping
-  public ResponseEntity<ProfileResponseDTO> updateProfile(
-      @Valid @RequestBody ProfileUpdateDTO dto, User user) {
-    return ResponseEntity.ok(userService.updateProfile(user, dto));
-  }
-
   @PutMapping("/password")
   public ResponseEntity<?> changePassword(
       @Valid @RequestBody ProfileChangePasswordDTO dto, User user) {
@@ -38,6 +31,35 @@ public class ProfileController {
   @DeleteMapping
   public ResponseEntity<?> deleteAccount(User user) {
     userService.deleteAccount(user);
+    return ResponseEntity.ok().build();
+  }
+
+  //UPDATE PROFILE
+  @PutMapping("/first-name")
+  public ResponseEntity<ProfileResponseDTO> updateFirstName(
+          @Valid @RequestParam String firstName, User user) {
+    userService.updateFirstName(firstName, user);
+    return ResponseEntity.ok().build();
+  }
+
+  @PutMapping("/last-name")
+  public ResponseEntity<ProfileResponseDTO> updateLastName(
+          @Valid @RequestParam String lastName, User user) {
+    userService.updateLastName(lastName, user);
+    return ResponseEntity.ok().build();
+  }
+
+  @PutMapping("/email")
+  public ResponseEntity<ProfileResponseDTO> updateEmail(
+          @Valid @RequestParam String email, User user) {
+    userService.updateEmail(email, user);
+    return ResponseEntity.ok().build();
+  }
+
+  @PutMapping("/picture")
+  public ResponseEntity<ProfileResponseDTO> updatePicture(
+          @Valid @RequestParam String url, User user) {
+    userService.updateProfilePicture(url, user);
     return ResponseEntity.ok().build();
   }
 }

@@ -13,6 +13,8 @@ import com.douglasbuilder.orderapp.mappers.UserMapper;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.UserRepository;
 import jakarta.validation.Valid;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.Data;
@@ -95,7 +97,7 @@ public class UserService implements UserDetailsService {
   }
 
   public void deleteAccount(User user) {
-    userRepository.deleteByUser(user);
+    userRepository.deleteByEmail(user.getEmail());
   }
 
   public void changePassword(ProfileChangePasswordDTO dto, User user) {
@@ -121,8 +123,33 @@ public class UserService implements UserDetailsService {
     return profileMapper.toProfile(user);
   }
 
-  // TODO to complete!!
-  public ProfileResponseDTO updateProfile(User user, @Valid ProfileUpdateDTO dto) {
-    return null;
+  private void saveUser(User user) {
+    userRepository.save(user);
+  }
+
+  public void updateLastLogin(User user) {
+    user.setLastLogin(LocalDateTime.now());
+    userRepository.save(user);
+  }
+
+  public void updateFirstName(@Valid String firstName, User user) {
+    user.setFirstName(firstName);
+    saveUser(user);
+  }
+
+  public void updateLastName(@Valid String lastName, User user) {
+    user.setLastName(lastName);
+    saveUser(user);
+  }
+
+  //TODO Once changed JWT Token won't work, need to define standards prior to update/adjust
+  public void updateEmail(@Valid String email, User user) {
+    user.setEmail(email);
+    saveUser(user);
+  }
+
+  public void updateProfilePicture(@Valid String url, User user) {
+    user.setProfilePicture(url);
+    saveUser(user);
   }
 }
