@@ -3,60 +3,55 @@ package com.douglasbuilder.orderapp.controller;
 import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.dto.product.CreateProductDTO;
 import com.douglasbuilder.orderapp.dto.product.UpdateProductDTO;
-import com.douglasbuilder.orderapp.model.Product;
-import com.douglasbuilder.orderapp.service.CartService;
 import com.douglasbuilder.orderapp.service.ProductService;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/product")
+@RequiredArgsConstructor
 public class ProductController {
 
   private final ProductService productService;
-  private final CartService cartService;
-
-  public ProductController(ProductService productService, CartService cartService) {
-    this.productService = productService;
-    this.cartService = cartService;
-  }
 
   @GetMapping
-  public ResponseEntity<?> getAll() {
+  public ResponseEntity<ApiResponse<Object>> getAll() {
     var products = productService.getAll();
-    return ResponseEntity.ok().body(new ApiResponse<>(products));
+    return ResponseEntity.ok(ApiResponse.success(products));
   }
 
   @GetMapping("/catalog")
-  public ResponseEntity<?> getCatalog() {
+  public ResponseEntity<ApiResponse<Object>> getCatalog() {
     var products = productService.getCatalog();
-    return ResponseEntity.ok().body(new ApiResponse<>(products));
+    return ResponseEntity.ok(ApiResponse.success(products));
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<?> find(@PathVariable UUID id) {
-    Product product = productService.find(id);
-    return ResponseEntity.ok(product);
+  public ResponseEntity<ApiResponse<Object>> find(@PathVariable UUID id) {
+    Object product = productService.find(id);
+    return ResponseEntity.ok(ApiResponse.success(product));
   }
 
   @PostMapping
-  public ResponseEntity<Product> create(@RequestBody CreateProductDTO createProductDTO) {
-    Product product = productService.create(createProductDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).body(product);
+  public ResponseEntity<ApiResponse<Object>> create(
+      @RequestBody CreateProductDTO createProductDTO) {
+    Object product = productService.create(createProductDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(product));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Product> update(
+  public ResponseEntity<ApiResponse<Object>> update(
       @PathVariable UUID id, @RequestBody UpdateProductDTO updateProductDTO) {
-    Product product = productService.update(id, updateProductDTO);
-    return ResponseEntity.status(HttpStatus.OK).body(product);
+    Object product = productService.update(id, updateProductDTO);
+    return ResponseEntity.ok(ApiResponse.success(product));
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<?> delete(@PathVariable UUID id) {
+  public ResponseEntity<ApiResponse<Object>> delete(@PathVariable UUID id) {
     productService.delete(id);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(ApiResponse.success(null));
   }
 }

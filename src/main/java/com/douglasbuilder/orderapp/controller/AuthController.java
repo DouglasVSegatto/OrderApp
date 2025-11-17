@@ -1,5 +1,6 @@
 package com.douglasbuilder.orderapp.controller;
 
+import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.dto.auth.AuthRequestDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
 import com.douglasbuilder.orderapp.model.User;
@@ -7,6 +8,7 @@ import com.douglasbuilder.orderapp.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,25 +20,28 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody AuthRequestDTO authRequest) {
-    return ResponseEntity.ok()
-        .body(authService.login(authRequest.getEmail(), authRequest.getPassword()));
+  public ResponseEntity<ApiResponse<Object>> login(@RequestBody AuthRequestDTO authRequest) {
+    var response = authService.login(authRequest.getEmail(), authRequest.getPassword());
+    return ResponseEntity.ok(ApiResponse.success(response));
   }
 
   @PostMapping("/register")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody CreateUserDTO createUserDTO) {
-    return ResponseEntity.status(201).body(authService.register(createUserDTO));
+  public ResponseEntity<ApiResponse<Object>> registerUser(
+      @Valid @RequestBody CreateUserDTO createUserDTO) {
+    var response = authService.register(createUserDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
   }
 
   @PostMapping("/logout")
-  public ResponseEntity<?> logout(User user) {
+  public ResponseEntity<ApiResponse<Object>> logout(User user) {
     authService.logout(user);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(ApiResponse.success());
   }
 
   @PostMapping("/refresh-token")
-  public ResponseEntity<?> refreshToken(HttpServletRequest request) {
-    return ResponseEntity.ok().body(authService.refreshToken(request));
+  public ResponseEntity<ApiResponse<Object>> refreshToken(HttpServletRequest request) {
+    var response = authService.refreshToken(request);
+    return ResponseEntity.ok(ApiResponse.success(response));
   }
   // TODO future to consider - forgot password - reset password - verify email
 

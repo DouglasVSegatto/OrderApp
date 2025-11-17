@@ -1,5 +1,6 @@
 package com.douglasbuilder.orderapp.controller;
 
+import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.model.Order;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.service.OrderService;
@@ -18,32 +19,33 @@ public class OrderController {
   private final OrderService orderService;
 
   @GetMapping
-  public ResponseEntity<?> getUserOrders(User user) {
+  public ResponseEntity<ApiResponse<Object>> getUserOrders(User user) {
     List<Order> orders = orderService.getOrdersByUser(user);
-    return ResponseEntity.ok(orders);
+    return ResponseEntity.ok(ApiResponse.success(orders));
   }
 
   @GetMapping("/{orderId}")
-  public ResponseEntity<?> getOrder(@PathVariable UUID orderId, User user) {
+  public ResponseEntity<ApiResponse<Object>> getOrder(@PathVariable UUID orderId, User user) {
     Order order = orderService.getOrderByIdAndUser(orderId, user);
-    return ResponseEntity.ok(order);
+    return ResponseEntity.ok(ApiResponse.success(order));
   }
 
   @PostMapping("/{orderId}/cancel")
-  public ResponseEntity<?> cancelOrder(@PathVariable UUID orderId, User user) {
+  public ResponseEntity<ApiResponse<Object>> cancelOrder(@PathVariable UUID orderId, User user) {
     orderService.cancelOrder(orderId, user);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(ApiResponse.success());
   }
 
   @PostMapping("/{cartId}/pay")
-  public ResponseEntity<?> payOrder(@PathVariable UUID cartId, User user) {
+  public ResponseEntity<ApiResponse<Object>> payOrder(@PathVariable UUID cartId, User user) {
     orderService.payOrder(cartId, user);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success());
   }
 
   @DeleteMapping("/{orderId}/delete")
-  public ResponseEntity<?> deleteOrderById(@PathVariable UUID orderId, User user) {
+  public ResponseEntity<ApiResponse<Object>> deleteOrderById(
+      @PathVariable UUID orderId, User user) {
     orderService.deleteOrderById(orderId, user);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    return ResponseEntity.ok(ApiResponse.success());
   }
 }

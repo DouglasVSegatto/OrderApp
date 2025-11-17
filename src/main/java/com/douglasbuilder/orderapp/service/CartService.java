@@ -140,7 +140,7 @@ public class CartService {
   }
 
   @Transactional
-  public CartItem updateCartItem(User user, Long itemId, Integer quantity) {
+  public void updateCartItem(User user, Long itemId, Integer quantity) {
 
     if (quantity <= 0) {
       throw new InvalidCartItemQuantityException("Quantity: " + quantity);
@@ -156,7 +156,6 @@ public class CartService {
 
     cartItem.setQuantity(quantity);
     cartRepository.save(cart);
-    return cartItem;
   }
 
   @Transactional
