@@ -2,7 +2,6 @@ package com.douglasbuilder.orderapp.service;
 
 import com.douglasbuilder.orderapp.dto.profile.ProfileChangePasswordDTO;
 import com.douglasbuilder.orderapp.dto.profile.ProfileResponseDTO;
-import com.douglasbuilder.orderapp.dto.profile.ProfileUpdateDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
 import com.douglasbuilder.orderapp.dto.user.ResponseUserDTO;
 import com.douglasbuilder.orderapp.dto.user.UpdateUserDTO;
@@ -12,13 +11,10 @@ import com.douglasbuilder.orderapp.mappers.ProfileMapper;
 import com.douglasbuilder.orderapp.mappers.UserMapper;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.UserRepository;
-import com.douglasbuilder.orderapp.security.TokenService;
 import jakarta.validation.Valid;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +24,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Data
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
@@ -36,10 +31,8 @@ public class UserService implements UserDetailsService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
-  private final InternalUserService internalUserService;
   private final ProfileMapper profileMapper;
   private final AuthenticationManager authenticationManager;
-  private final TokenService tokenService;
   private final AuthService authService;
 
   public List<User> getAll() {
@@ -106,14 +99,15 @@ public class UserService implements UserDetailsService {
     userRepository.deleteByEmail(user.getEmail());
   }
 
-
   public void changePassword(ProfileChangePasswordDTO dto, User user) {
 
-    var userPassword = new UsernamePasswordAuthenticationToken(user.getEmail(), dto.getCurrentPassword());
+    var userPassword =
+        new UsernamePasswordAuthenticationToken(user.getEmail(), dto.getCurrentPassword());
     authenticationManager.authenticate(userPassword);
 
     if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
-      throw new AuthInvalidCredentialsException("New password must be different from previous, try again.");
+      throw new AuthInvalidCredentialsException(
+          "New password must be different from previous, try again.");
     }
 
     user.setPassword(passwordEncoder.encode(dto.getNewPassword()));

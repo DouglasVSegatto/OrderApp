@@ -59,7 +59,7 @@ public class ProductService {
     Product product =
         productRepository
             .findById(id)
-            .orElseThrow(() -> new UserNotFoundException("Product ID not found"));
+            .orElseThrow(() -> new ProductNotFoundException("Product ID not found"));
 
     if (updateProductDTO.getType() != null) {
       product.setType(updateProductDTO.getType());

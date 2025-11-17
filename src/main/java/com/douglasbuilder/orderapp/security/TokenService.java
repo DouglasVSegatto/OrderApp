@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.douglasbuilder.orderapp.model.Token;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.model.enumetations.TokenType;
@@ -22,13 +22,13 @@ public class TokenService {
   private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
   private final TokenRepository tokenRepository;
 
-  @Value(value = "${api.security.token.secret}")
+  @Value("${api.security.token.secret}")
   private String secret;
 
-  @Value(value = "${application.security.token.access-token-expiration}")
+  @Value("${application.security.token.access-token-expiration}")
   private int accessTokenExpireTime;
 
-  @Value(value = "${application.security.token.refresh-token-expiration}")
+  @Value("${application.security.token.refresh-token-expiration}")
   private int refreshTokenExpireTime;
 
   public TokenService(TokenRepository tokenRepository) {
@@ -69,18 +69,25 @@ public class TokenService {
     return generateToken(user, accessTokenExpireTime, TokenType.ACCESS.toString());
   }
 
-  public boolean isTokenValid(String token) {
-    try {
-      var algorithm = getAlgorithm();
-      JWT.require(algorithm).withIssuer("auth-api").build().verify(token);
+  private DecodedJWT getVerifiedJwt(String token) throws JWTVerificationException {
+    var algorithm = getAlgorithm();
+    return JWT.require(algorithm).withIssuer("auth-api").build().verify(token);
+  }
 
-      if (isRefreshToken(token) && !tokenRepository.existsByToken(token)) {
-        throw new AuthInvalidCredentialsException("Invalid refresh token");
+  public String getValidTokenSubject(String token) {
+    try {
+
+      DecodedJWT verifiedJWT = getVerifiedJwt(token);
+
+      if (isRefreshToken(verifiedJWT) && !tokenRepository.existsByToken(token)) {
+        logger.warn("Attempted use of non-existent refresh token.");
+        return null;
       }
-      return true;
+      return verifiedJWT.getSubject();
+
     } catch (JWTVerificationException exception) {
-      logger.warn("Token security issue: {}", exception.getMessage());
-      return false;
+      logger.warn("Token Validation Failed: {}", exception.getMessage());
+      return null;
     }
   }
 
@@ -96,11 +103,7 @@ public class TokenService {
     return Instant.now().plusSeconds(expirationTime);
   }
 
-  public boolean isRefreshToken(String token) {
-    try {
-      return TokenType.REFRESH.toString().equals(JWT.decode(token).getClaim("type").asString());
-    } catch (JWTDecodeException exception) {
-      throw new RuntimeException("Invalid token format", exception);
-    }
+  public boolean isRefreshToken(DecodedJWT decodedJWT) {
+    return TokenType.REFRESH.toString().equals(decodedJWT.getClaim("type").asString());
   }
 }

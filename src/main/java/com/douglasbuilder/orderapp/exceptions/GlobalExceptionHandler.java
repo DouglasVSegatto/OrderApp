@@ -6,6 +6,7 @@ import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsExcepti
 import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidTokenException;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthTokenExpiredException;
 import com.douglasbuilder.orderapp.exceptions.cart.CartException;
+import com.douglasbuilder.orderapp.exceptions.cart.CartInvalidStatus;
 import com.douglasbuilder.orderapp.exceptions.cart.CartNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemNotFoundException;
@@ -90,9 +91,15 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(CartNotFoundException.class)
-  public ResponseEntity<ApiErrorDTO> handlerCartNotFoundException(CartNotFoundException e) {
+  public ResponseEntity<ApiErrorDTO> handleCartNotFoundException(CartNotFoundException e) {
     ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Cart not found", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+  }
+
+  @ExceptionHandler(CartInvalidStatus.class)
+  public ResponseEntity<ApiErrorDTO> handleCartInvalidStatus(CartInvalidStatus e) {
+    ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Invalid Cart Status", e.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
   }
 
   // CartItem
@@ -103,7 +110,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(InvalidCartItemQuantityException.class)
-  public ResponseEntity<ApiErrorDTO> handlerInvalidCartItemQuantityException(
+  public ResponseEntity<ApiErrorDTO> handleInvalidCartItemQuantityException(
       InvalidCartItemQuantityException e) {
     ApiErrorDTO error =
         new ApiErrorDTO(LocalDateTime.now(), "Invalid Cart Item Quantity", e.getMessage());
@@ -111,7 +118,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(CartItemProductAlreadyExists.class)
-  public ResponseEntity<ApiErrorDTO> handlerCartItemProductAlreadyExists(
+  public ResponseEntity<ApiErrorDTO> handleCartItemProductAlreadyExists(
       CartItemProductAlreadyExists e) {
     ApiErrorDTO error =
         new ApiErrorDTO(LocalDateTime.now(), "Product already in cart", e.getMessage());
@@ -119,20 +126,20 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(CartItemNotFoundException.class)
-  public ResponseEntity<ApiErrorDTO> handlerCartItemNotFoundException(CartItemNotFoundException e) {
+  public ResponseEntity<ApiErrorDTO> handleCartItemNotFoundException(CartItemNotFoundException e) {
     ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Cart Item not found", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
   }
 
   // ORDER
   @ExceptionHandler(OrderNotFoundException.class)
-  public ResponseEntity<ApiErrorDTO> handlerOrderNotFoundException(OrderNotFoundException e) {
+  public ResponseEntity<ApiErrorDTO> handleOrderNotFoundException(OrderNotFoundException e) {
     ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Order not found", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
   }
 
   @ExceptionHandler(OrderAlreadyProcessedException.class)
-  public ResponseEntity<ApiErrorDTO> handlerOrderAlreadyProcessedException(
+  public ResponseEntity<ApiErrorDTO> handleOrderAlreadyProcessedException(
       OrderAlreadyProcessedException e) {
     ApiErrorDTO error =
         new ApiErrorDTO(LocalDateTime.now(), "Order Already Processed", e.getMessage());
@@ -140,7 +147,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(OrderException.class)
-  public ResponseEntity<ApiErrorDTO> handlerOrderException(OrderException e) {
+  public ResponseEntity<ApiErrorDTO> handleOrderException(OrderException e) {
     ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Internal Error", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
   }
@@ -148,28 +155,28 @@ public class GlobalExceptionHandler {
   // AUTH
 
   @ExceptionHandler(AuthException.class)
-  public ResponseEntity<ApiErrorDTO> handlerAuthException(AuthException e) {
+  public ResponseEntity<ApiErrorDTO> handleAuthException(AuthException e) {
     ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Internal Error", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
   }
 
   @ExceptionHandler(AuthInvalidCredentialsException.class)
-  public ResponseEntity<ApiErrorDTO> handlerAuthInvalidCredentialsException(
+  public ResponseEntity<ApiErrorDTO> handleAuthInvalidCredentialsException(
       AuthInvalidCredentialsException e) {
     ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Invalid credentials", e.getMessage());
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
   }
   @ExceptionHandler(AuthTokenExpiredException.class)
-  public ResponseEntity<AuthTokenExpiredException> handlerAuthRefreshTokenExpiredException(
+  public ResponseEntity<ApiErrorDTO> handleAuthRefreshTokenExpiredException(
           AuthTokenExpiredException e) {
     ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Token has expired", e.getMessage());
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e);
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
   }
 
   @ExceptionHandler(AuthInvalidTokenException.class)
-  public ResponseEntity<AuthInvalidTokenException> handlerAuthInvalidTokenException(
+  public ResponseEntity<ApiErrorDTO> handleAuthInvalidTokenException(
           AuthInvalidTokenException e) {
     ApiErrorDTO error = new ApiErrorDTO(LocalDateTime.now(), "Invalid Token", e.getMessage());
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e);
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
   }
 }

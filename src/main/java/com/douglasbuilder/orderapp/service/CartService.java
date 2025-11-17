@@ -1,6 +1,7 @@
 package com.douglasbuilder.orderapp.service;
 
 import com.douglasbuilder.orderapp.dto.cart.CartResponseDTO;
+import com.douglasbuilder.orderapp.exceptions.cart.CartInvalidStatus;
 import com.douglasbuilder.orderapp.exceptions.cart.CartNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemNotFoundException;
 import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemProductAlreadyExists;
@@ -134,7 +135,7 @@ public class CartService {
   @Transactional
   public void deleteCart(UUID cartId, User user) {
     if (!cartRepository.existsByUser(user)) {
-      throw new UserNotFoundException("User not found, Email: " + user.getEmail());
+      throw new CartNotFoundException("Cart not found, Email: " + user.getEmail());
     }
     cartRepository.deleteCartByIdAndUser(cartId, user);
   }
@@ -161,8 +162,12 @@ public class CartService {
   @Transactional
   public void updateCartStatus(User user, String status) {
     Cart cart = findCartByUser(user);
-    cart.setStatus(CartStatus.valueOf(status.toUpperCase()));
-    cartRepository.save(cart);
+    try{
+      cart.setStatus(CartStatus.valueOf(status.toUpperCase()));
+      cartRepository.save(cart);
+    } catch (IllegalArgumentException e) {
+      throw new CartInvalidStatus("Status: " + e.getMessage());
+    }
   }
 
   public void saveCart(Cart cart) {

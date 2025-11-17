@@ -86,11 +86,12 @@ public class AuthService {
 
     String refreshToken = authHeader.replace("Bearer ", "");
 
-    if (!tokenService.isTokenValid(refreshToken)) {
-      throw new AuthTokenExpiredException("Refresh Token has expired");
+    String email = tokenService.getValidTokenSubject(refreshToken);
+
+    if (email == null) {
+      throw new AuthTokenExpiredException("Refresh Token has expired or is invalid");
     }
 
-    String email = tokenService.extractTokenSubject(refreshToken);
     User user = userService.findByEmail(email);
 
     revokeUserTokens(user);
