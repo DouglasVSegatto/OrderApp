@@ -9,6 +9,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.boot.autoconfigure.amqp.RabbitConnectionDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,9 +41,11 @@ public class User implements UserDetails {
 
   @Column private LocalDateTime lastLogin;
 
-  @Column private String profilePicture;
+  @Column private String phoneNumber;
 
-  // TODO Future - phoneNumber,bio,achievements, Others...
+  @Column private String address;
+
+  @Column private String zipcode;
 
   @PrePersist
   protected void onCreate(){

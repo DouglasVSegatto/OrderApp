@@ -6,23 +6,22 @@ import com.douglasbuilder.orderapp.dto.user.ResponseUserDTO;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthTokenExpiredException;
 import com.douglasbuilder.orderapp.exceptions.user.DuplicateEmailException;
-import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.model.Token;
 import com.douglasbuilder.orderapp.model.User;
+import com.douglasbuilder.orderapp.model.enumetations.TokenType;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
 import com.douglasbuilder.orderapp.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -69,25 +68,19 @@ public class AuthService {
     tokenRepository.save(token);
   }
 
-  public User getCurrentUser() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-      return userService.findByEmail(authentication.getName());
-    }
-    throw new UserNotFoundException("No authenticated user found");
-  }
-
   @Transactional
   public AuthResponseDTO refreshToken(HttpServletRequest request) {
-    String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
       throw new AuthInvalidCredentialsException("Missing or invalid authorization header");
     }
 
-    String refreshToken = authHeader.replace("Bearer ", "");
+    var refreshToken = authHeader.replace("Bearer ", "");
 
-    String email = tokenService.getValidTokenSubject(refreshToken);
+    var email = tokenService.getValidRefreshTokenSubject(refreshToken);
 
+
+    log.info("EMAIL RETURNED: " + email);
     if (email == null) {
       throw new AuthTokenExpiredException("Refresh Token has expired or is invalid");
     }

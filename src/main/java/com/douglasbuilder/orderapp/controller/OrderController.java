@@ -21,31 +21,31 @@ public class OrderController {
   @GetMapping
   public ResponseEntity<ApiResponse<Object>> getUserOrders(User user) {
     List<Order> orders = orderService.getOrdersByUser(user);
-    return ResponseEntity.ok(ApiResponse.success(orders));
+    return ResponseEntity.ok(new ApiResponse<>(orders));
   }
 
   @GetMapping("/{orderId}")
   public ResponseEntity<ApiResponse<Object>> getOrder(@PathVariable UUID orderId, User user) {
     Order order = orderService.getOrderByIdAndUser(orderId, user);
-    return ResponseEntity.ok(ApiResponse.success(order));
+    return ResponseEntity.ok(new ApiResponse<>(order));
   }
 
   @PostMapping("/{orderId}/cancel")
   public ResponseEntity<ApiResponse<Object>> cancelOrder(@PathVariable UUID orderId, User user) {
     orderService.cancelOrder(orderId, user);
-    return ResponseEntity.ok(ApiResponse.success());
+    return ResponseEntity.ok(new ApiResponse<>());
   }
 
   @PostMapping("/{cartId}/pay")
   public ResponseEntity<ApiResponse<Object>> payOrder(@PathVariable UUID cartId, User user) {
     orderService.payOrder(cartId, user);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success());
+    return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>());
   }
 
   @DeleteMapping("/{orderId}/delete")
   public ResponseEntity<ApiResponse<Object>> deleteOrderById(
       @PathVariable UUID orderId, User user) {
     orderService.deleteOrderById(orderId, user);
-    return ResponseEntity.ok(ApiResponse.success());
+    return ResponseEntity.ok(new ApiResponse<>());
   }
 }

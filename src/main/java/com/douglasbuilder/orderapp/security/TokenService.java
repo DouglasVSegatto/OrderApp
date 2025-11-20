@@ -3,7 +3,6 @@ package com.douglasbuilder.orderapp.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.douglasbuilder.orderapp.model.Token;
@@ -14,6 +13,7 @@ import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -74,12 +74,12 @@ public class TokenService {
     return JWT.require(algorithm).withIssuer("auth-api").build().verify(token);
   }
 
-  public String getValidTokenSubject(String token) {
+  public String getValidRefreshTokenSubject(String token) {
     try {
 
       DecodedJWT verifiedJWT = getVerifiedJwt(token);
 
-      if (isRefreshToken(verifiedJWT) && !tokenRepository.existsByToken(token)) {
+      if (!isRefreshToken(verifiedJWT) || !tokenRepository.existsByToken(token)) {
         logger.warn("Attempted use of non-existent refresh token.");
         return null;
       }
@@ -91,11 +91,17 @@ public class TokenService {
     }
   }
 
-  public String extractTokenSubject(String token) {
+  public String getValidAccessTokenSubject(String token) {
     try {
-      return JWT.decode(token).getSubject();
-    } catch (JWTDecodeException exception) {
-      throw new RuntimeException("Invalid token format", exception);
+      DecodedJWT verifiedJWT = getVerifiedJwt(token);
+      if (isRefreshToken(verifiedJWT)) {
+        logger.warn("Attempted use of refresh token.");
+        return null;
+      }
+      return verifiedJWT.getSubject();
+    } catch (JWTVerificationException exception) {
+      logger.warn("Token Validation Failed: {}", exception.getMessage());
+      return null;
     }
   }
 

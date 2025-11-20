@@ -22,26 +22,26 @@ public class AuthController {
   @PostMapping("/login")
   public ResponseEntity<ApiResponse<Object>> login(@RequestBody AuthRequestDTO authRequest) {
     var response = authService.login(authRequest.getEmail(), authRequest.getPassword());
-    return ResponseEntity.ok(ApiResponse.success(response));
+    return ResponseEntity.ok(new ApiResponse<>(response));
   }
 
   @PostMapping("/register")
   public ResponseEntity<ApiResponse<Object>> registerUser(
       @Valid @RequestBody CreateUserDTO createUserDTO) {
     var response = authService.register(createUserDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
+    return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(response));
   }
 
   @PostMapping("/logout")
   public ResponseEntity<ApiResponse<Object>> logout(User user) {
     authService.logout(user);
-    return ResponseEntity.ok(ApiResponse.success());
+    return ResponseEntity.ok(new ApiResponse<>());
   }
 
   @PostMapping("/refresh-token")
   public ResponseEntity<ApiResponse<Object>> refreshToken(HttpServletRequest request) {
     var response = authService.refreshToken(request);
-    return ResponseEntity.ok(ApiResponse.success(response));
+    return ResponseEntity.ok(new ApiResponse<>(response));
   }
   // TODO future to consider - forgot password - reset password - verify email
 

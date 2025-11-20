@@ -20,38 +20,38 @@ public class ProductController {
   @GetMapping
   public ResponseEntity<ApiResponse<Object>> getAll() {
     var products = productService.getAll();
-    return ResponseEntity.ok(ApiResponse.success(products));
+    return ResponseEntity.ok(new ApiResponse<>(products));
   }
 
   @GetMapping("/catalog")
   public ResponseEntity<ApiResponse<Object>> getCatalog() {
     var products = productService.getCatalog();
-    return ResponseEntity.ok(ApiResponse.success(products));
+    return ResponseEntity.ok(new ApiResponse<>(products));
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<ApiResponse<Object>> find(@PathVariable UUID id) {
     Object product = productService.find(id);
-    return ResponseEntity.ok(ApiResponse.success(product));
+    return ResponseEntity.ok(new ApiResponse<>(product));
   }
 
   @PostMapping
   public ResponseEntity<ApiResponse<Object>> create(
       @RequestBody CreateProductDTO createProductDTO) {
     Object product = productService.create(createProductDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(product));
+    return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(product));
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<ApiResponse<Object>> update(
       @PathVariable UUID id, @RequestBody UpdateProductDTO updateProductDTO) {
     Object product = productService.update(id, updateProductDTO);
-    return ResponseEntity.ok(ApiResponse.success(product));
+    return ResponseEntity.ok(new ApiResponse<>(product));
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<ApiResponse<Object>> delete(@PathVariable UUID id) {
     productService.delete(id);
-    return ResponseEntity.ok(ApiResponse.success(null));
+    return ResponseEntity.ok(new ApiResponse<>());
   }
 }

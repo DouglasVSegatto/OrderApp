@@ -25,25 +25,25 @@ public class CartController {
   @GetMapping
   public ResponseEntity<ApiResponse<Object>> getAllCartsByUser(User user) {
     List<Cart> carts = cartService.findAllCartsByUser(user);
-    return ResponseEntity.ok(ApiResponse.success(carts));
+    return ResponseEntity.ok(new ApiResponse<>(carts));
   }
 
   @GetMapping("/active")
-  public ResponseEntity<ApiResponse<Object>> getActiveCart(User user) {
-    Cart cart = cartService.findActiveCartByUser(user);
-    return ResponseEntity.ok(ApiResponse.success(cart));
+  public ResponseEntity<ApiResponse<Object>> getActiveCart() {
+    Cart cart = cartService.findActiveCartByUser();
+    return ResponseEntity.ok(new ApiResponse<>(cart));
   }
 
   @DeleteMapping("/{cartId}/delete")
   public ResponseEntity<ApiResponse<Object>> deleteCart(@PathVariable UUID cartId, User user) {
     cartService.deleteCart(cartId, user);
-    return ResponseEntity.ok(ApiResponse.success());
+    return ResponseEntity.ok(new ApiResponse<>());
   }
 
   @PutMapping("/status/{status}")
   public ResponseEntity<ApiResponse<Object>> updateCartStatus(User user, @PathVariable String status) {
     cartService.updateCartStatus(user, status);
-    return ResponseEntity.ok(ApiResponse.success());
+    return ResponseEntity.ok(new ApiResponse<>());
   }
 
   // CART ITEM RELATED
@@ -51,19 +51,19 @@ public class CartController {
   @PostMapping("/{productId}/addItem")
   public ResponseEntity<ApiResponse<Object>> addItem(User user, @PathVariable UUID productId) {
     cartService.addItem(user, productId);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success());
+    return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>());
   }
 
   @DeleteMapping("/items/{itemId}")
   public ResponseEntity<ApiResponse<Object>> deleteItem(User user, @PathVariable Long itemId) {
     cartService.deleteItem(user, itemId);
-    return ResponseEntity.ok(ApiResponse.success());
+    return ResponseEntity.ok(new ApiResponse<>());
   }
 
   @PutMapping("/items/{itemId}/quantity/{quantity}")
   public ResponseEntity<ApiResponse<Object>> updateItemQuantity(
       User user, @PathVariable Long itemId, @PathVariable Integer quantity) {
     cartService.updateCartItem(user, itemId, quantity);
-    return ResponseEntity.ok(ApiResponse.success());
+    return ResponseEntity.ok(new ApiResponse<>());
   }
 }

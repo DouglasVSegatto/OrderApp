@@ -1,23 +1,20 @@
 package com.douglasbuilder.orderapp.service;
 
 import com.douglasbuilder.orderapp.dto.profile.ProfileChangePasswordDTO;
-import com.douglasbuilder.orderapp.dto.profile.ProfileResponseDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
 import com.douglasbuilder.orderapp.dto.user.ResponseUserDTO;
 import com.douglasbuilder.orderapp.dto.user.UpdateUserDTO;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
 import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
-import com.douglasbuilder.orderapp.mappers.ProfileMapper;
 import com.douglasbuilder.orderapp.mappers.UserMapper;
 import com.douglasbuilder.orderapp.model.User;
+import com.douglasbuilder.orderapp.repository.TokenRepository;
 import com.douglasbuilder.orderapp.repository.UserRepository;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,9 +28,8 @@ public class UserService implements UserDetailsService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
-  private final ProfileMapper profileMapper;
-  private final AuthenticationManager authenticationManager;
-  private final AuthService authService;
+  private final TokenRepository tokenRepository;
+  private final CurrentUserService currentUser;
 
   public List<User> getAll() {
     return userRepository.findAll();
@@ -60,12 +56,12 @@ public class UserService implements UserDetailsService {
     return userMapper.toDto(user);
   }
 
+  public User findByEmail() {
+    return userRepository.findByEmail(currentUser.getCurrentUserId());
+  }
+
   public User findByEmail(String email) {
-    User user = userRepository.findByEmail(email);
-    if (user == null) {
-      throw new UserNotFoundException("No User found with email: " + email);
-    }
-    return user;
+    return userRepository.findByEmail(email);
   }
 
   public void updateById(UUID id, UpdateUserDTO updateUserDTO) {
@@ -101,10 +97,6 @@ public class UserService implements UserDetailsService {
 
   public void changePassword(ProfileChangePasswordDTO dto, User user) {
 
-    var userPassword =
-        new UsernamePasswordAuthenticationToken(user.getEmail(), dto.getCurrentPassword());
-    authenticationManager.authenticate(userPassword);
-
     if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
       throw new AuthInvalidCredentialsException(
           "New password must be different from previous, try again.");
@@ -112,16 +104,12 @@ public class UserService implements UserDetailsService {
 
     user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
     userRepository.save(user);
-    authService.revokeUserTokens(user);
+    tokenRepository.deleteAllByUser(user);
   }
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     return userRepository.findByEmail(username);
-  }
-
-  public ProfileResponseDTO getProfile(User user) {
-    return profileMapper.toProfile(user);
   }
 
   private void saveUser(User user) {
@@ -146,11 +134,7 @@ public class UserService implements UserDetailsService {
   public void updateEmail(@Valid String email, User user) {
     user.setEmail(email);
     saveUser(user);
-    authService.revokeUserTokens(user);
+    tokenRepository.deleteAllByUser(user);
   }
 
-  public void updateProfilePicture(@Valid String url, User user) {
-    user.setProfilePicture(url);
-    saveUser(user);
-  }
 }
