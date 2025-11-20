@@ -8,7 +8,6 @@ import com.douglasbuilder.orderapp.exceptions.auth.AuthTokenExpiredException;
 import com.douglasbuilder.orderapp.exceptions.user.DuplicateEmailException;
 import com.douglasbuilder.orderapp.model.Token;
 import com.douglasbuilder.orderapp.model.User;
-import com.douglasbuilder.orderapp.model.enumetations.TokenType;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
 import com.douglasbuilder.orderapp.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +29,7 @@ public class AuthService {
   private final UserService userService;
   private final TokenService tokenService;
   private final TokenRepository tokenRepository;
+  private final CurrentUserService currentUser;
 
   private void authenticateUser(String email, String pwd) {
     var userPassword = new UsernamePasswordAuthenticationToken(email, pwd);
@@ -40,9 +40,9 @@ public class AuthService {
   public AuthResponseDTO login(String email, String password) {
     authenticateUser(email, password);
 
-    var user = userService.findByEmail(email);
+    var user = userService.getUser(email);
 
-    revokeUserTokens(user);
+    deleteUserTokens();
 
     var accessToken = tokenService.generateAccessToken(user);
     var refreshToken = tokenService.generateRefreshToken(user);
@@ -50,7 +50,7 @@ public class AuthService {
 
     user.setLastLogin(LocalDateTime.now());
 
-    userService.updateLastLogin(user);
+    userService.recordLogin(user);
 
     return new AuthResponseDTO(accessToken.getToken(), refreshToken.getToken(), "Login successful");
   }
@@ -85,9 +85,9 @@ public class AuthService {
       throw new AuthTokenExpiredException("Refresh Token has expired or is invalid");
     }
 
-    User user = userService.findByEmail(email);
+    User user = userService.getUser(email);
 
-    revokeUserTokens(user);
+    deleteUserTokens();
 
     Token newAccessToken = tokenService.generateAccessToken(user);
     Token newRefreshToken = tokenService.generateRefreshToken(user);
@@ -98,12 +98,12 @@ public class AuthService {
   }
 
   @Transactional
-  public void logout(User user) {
-    revokeUserTokens(user);
+  public void logout() {
+    deleteUserTokens();
   }
 
   @Transactional
-  public void revokeUserTokens(User user) {
-    tokenRepository.deleteAllByUser(user);
+  public void deleteUserTokens() {
+    tokenRepository.deleteAllByUserEmail(currentUser.getCurrentUserEmail());
   }
 }

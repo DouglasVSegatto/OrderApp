@@ -28,11 +28,11 @@ public class OrderService {
   private final ProductService productService;
   private final CartRepository cartRepository;
 
-  public List<Order> getOrdersByUser(User user) {
+  public List<Order> getUserOrders(User user) {
     return orderRepository.findAllByUser(user);
   }
 
-  public Order getOrderByIdAndUser(UUID orderId, User user) {
+  public Order getUserOrder(UUID orderId, User user) {
     return orderRepository
         .findByIdAndUser(orderId, user)
         .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId));
@@ -101,7 +101,7 @@ public class OrderService {
         .build();
   }
 
-  public void deleteOrderById(UUID orderId, User user) {
-    orderRepository.delete(getOrderByIdAndUser(orderId, user));
+  public void deleteOrder(UUID orderId, User user) {
+    orderRepository.delete(getUserOrder(orderId, user));
   }
 }

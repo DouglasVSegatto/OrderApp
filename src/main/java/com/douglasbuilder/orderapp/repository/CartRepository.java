@@ -20,7 +20,7 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
 
   boolean existsByUser(User user);
 
-  Cart findByUserAndStatus(User user, CartStatus cartStatus);
+  Cart findByUserEmailAndStatus(String userEmail, CartStatus cartStatus);
 
   void deleteCartByIdAndUser(UUID cartId, User user);
 

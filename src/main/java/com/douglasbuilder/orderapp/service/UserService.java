@@ -1,25 +1,24 @@
 package com.douglasbuilder.orderapp.service;
 
-import com.douglasbuilder.orderapp.dto.profile.ProfileChangePasswordDTO;
+import com.douglasbuilder.orderapp.dto.user.UserChangePasswordDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
-import com.douglasbuilder.orderapp.dto.user.ResponseUserDTO;
-import com.douglasbuilder.orderapp.dto.user.UpdateUserDTO;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
-import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.mappers.UserMapper;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
 import com.douglasbuilder.orderapp.repository.UserRepository;
+import com.douglasbuilder.orderapp.security.TokenService;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +29,7 @@ public class UserService implements UserDetailsService {
   private final PasswordEncoder passwordEncoder;
   private final TokenRepository tokenRepository;
   private final CurrentUserService currentUser;
+  private final TokenService tokenService;
 
   public List<User> getAll() {
     return userRepository.findAll();
@@ -48,54 +48,24 @@ public class UserService implements UserDetailsService {
     return userRepository.save(user);
   }
 
-  public ResponseUserDTO findById(UUID id) {
-    var user =
-        userRepository
-            .findById(id)
-            .orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
-    return userMapper.toDto(user);
+  public User getUser() {
+    return userRepository.findByEmail(currentUser.getCurrentUserEmail());
   }
 
-  public User findByEmail() {
-    return userRepository.findByEmail(currentUser.getCurrentUserId());
-  }
-
-  public User findByEmail(String email) {
+  public User getUser(String email) {
     return userRepository.findByEmail(email);
   }
 
-  public void updateById(UUID id, UpdateUserDTO updateUserDTO) {
-    User user =
-        userRepository
-            .findById(id)
-            .orElseThrow(() -> new UserNotFoundException("No User found with ID: " + id));
-
-    if (updateUserDTO.getFirstName() != null) {
-      user.setFirstName(updateUserDTO.getFirstName());
-    }
-    if (updateUserDTO.getLastName() != null) {
-      user.setLastName(updateUserDTO.getLastName());
-    }
-
-    var userUpdated = userRepository.save(user);
-
-    userMapper.toDto(userUpdated);
+  public void deleteAccount() {
+    String email = currentUser.getCurrentUserEmail();
+    userRepository.deleteByEmail(email);
+    tokenService.deleteUSerToken(email);
   }
 
-  // TODO Duplicated with deleteAccount due to new authentication - TO REVIEW
-  public void deleteById(UUID id) {
-    boolean idExists = userRepository.existsById(id);
-    if (!idExists) {
-      throw new UserNotFoundException("No User found with ID: " + id);
-    }
-    userRepository.deleteById(id);
-  }
-
-  public void deleteAccount(User user) {
-    userRepository.deleteByEmail(user.getEmail());
-  }
-
-  public void changePassword(ProfileChangePasswordDTO dto, User user) {
+  //TODO User token still works, FUTURE: to implement isLoggedOut to user to track.
+  @Transactional
+  public void changePassword(UserChangePasswordDTO dto) {
+    User user = getUser();
 
     if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
       throw new AuthInvalidCredentialsException(
@@ -104,7 +74,7 @@ public class UserService implements UserDetailsService {
 
     user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
     userRepository.save(user);
-    tokenRepository.deleteAllByUser(user);
+    tokenService.deleteUSerToken();
   }
 
   @Override
@@ -116,25 +86,31 @@ public class UserService implements UserDetailsService {
     userRepository.save(user);
   }
 
-  public void updateLastLogin(User user) {
+  public void recordLogin(User user) {
     user.setLastLogin(LocalDateTime.now());
     userRepository.save(user);
   }
 
-  public void updateFirstName(@Valid String firstName, User user) {
+  public void updateFirstName(@Valid String firstName) {
+    User user = getUser();
     user.setFirstName(firstName);
     saveUser(user);
   }
 
-  public void updateLastName(@Valid String lastName, User user) {
+  public void updateLastName(@Valid String lastName) {
+    User user = getUser();
     user.setLastName(lastName);
     saveUser(user);
   }
 
-  public void updateEmail(@Valid String email, User user) {
+  //TODO compare new with previous
+  @Transactional
+  public void updateEmail(@Valid String email) {
+    User user = getUser();
+    String previousEmail = user.getEmail();
     user.setEmail(email);
     saveUser(user);
-    tokenRepository.deleteAllByUser(user);
+    tokenService.deleteUSerToken(previousEmail);
   }
 
 }

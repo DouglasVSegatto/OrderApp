@@ -19,7 +19,7 @@ public class ProductController {
 
   @GetMapping
   public ResponseEntity<ApiResponse<Object>> getAll() {
-    var products = productService.getAll();
+    var products = productService.getAllProducts();
     return ResponseEntity.ok(new ApiResponse<>(products));
   }
 
@@ -31,7 +31,7 @@ public class ProductController {
 
   @GetMapping("/{id}")
   public ResponseEntity<ApiResponse<Object>> find(@PathVariable UUID id) {
-    Object product = productService.find(id);
+    Object product = productService.getProduct(id);
     return ResponseEntity.ok(new ApiResponse<>(product));
   }
 

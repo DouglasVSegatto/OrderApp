@@ -3,7 +3,6 @@ package com.douglasbuilder.orderapp.controller;
 import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.mappers.CartMapper;
 import com.douglasbuilder.orderapp.model.Cart;
-import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.service.CartService;
 import java.util.List;
@@ -24,13 +23,13 @@ public class CartController {
   // CART RELATED
   @GetMapping
   public ResponseEntity<ApiResponse<Object>> getAllCartsByUser(User user) {
-    List<Cart> carts = cartService.findAllCartsByUser(user);
+    List<Cart> carts = cartService.getUserCarts(user);
     return ResponseEntity.ok(new ApiResponse<>(carts));
   }
 
   @GetMapping("/active")
   public ResponseEntity<ApiResponse<Object>> getActiveCart() {
-    Cart cart = cartService.findActiveCartByUser();
+    Cart cart = cartService.getActiveCart();
     return ResponseEntity.ok(new ApiResponse<>(cart));
   }
 
@@ -56,14 +55,14 @@ public class CartController {
 
   @DeleteMapping("/items/{itemId}")
   public ResponseEntity<ApiResponse<Object>> deleteItem(User user, @PathVariable Long itemId) {
-    cartService.deleteItem(user, itemId);
+    cartService.removeItem(user, itemId);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 
   @PutMapping("/items/{itemId}/quantity/{quantity}")
   public ResponseEntity<ApiResponse<Object>> updateItemQuantity(
       User user, @PathVariable Long itemId, @PathVariable Integer quantity) {
-    cartService.updateCartItem(user, itemId, quantity);
+    cartService.updateItemQuantity(user, itemId, quantity);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 }

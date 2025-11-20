@@ -8,7 +8,6 @@ import com.douglasbuilder.orderapp.exceptions.cartitem.CartItemProductAlreadyExi
 import com.douglasbuilder.orderapp.exceptions.cartitem.InvalidCartItemQuantityException;
 import com.douglasbuilder.orderapp.exceptions.product.ProductNotAvailableException;
 import com.douglasbuilder.orderapp.exceptions.product.ProductNotFoundException;
-import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.mappers.CartMapper;
 import com.douglasbuilder.orderapp.model.Cart;
 import com.douglasbuilder.orderapp.model.CartItem;
@@ -38,8 +37,9 @@ public class CartService {
   private final ProductRepository productRepository;
   private final CartMapper cartMapper;
   private final PriceCalculationService priceCalculationService;
+  private final CurrentUserService currentUser;
 
-  public List<Cart> findAllCartsByUser(User user) {
+  public List<Cart> getUserCarts(User user) {
     List<Cart> carts = cartRepository.findAllByUser(user);
     if (carts == null) {
       throw new CartNotFoundException("User has no Cart, Email:" + user.getEmail());
@@ -47,7 +47,7 @@ public class CartService {
     return carts;
   }
 
-  public Cart findCartByUser(User user) {
+  public Cart getUserCart(User user) {
     Cart cart = cartRepository.findByUser(user);
     if (cart == null) {
       throw new CartNotFoundException("User has no Cart, Email:" + user.getEmail());
@@ -55,11 +55,12 @@ public class CartService {
     return cart;
   }
 
-  public Cart findActiveCartByUser(User user) {
-    Cart cart = cartRepository.findByUserAndStatus(user, CartStatus.ACTIVE);
+  public Cart getActiveCart() {
+    String email = currentUser.getCurrentUserEmail();
+    Cart cart = cartRepository.findByUserEmailAndStatus(email, CartStatus.ACTIVE);
     if (cart == null) {
       throw new CartNotFoundException(
-          "User has no Cart in Active status, Email:" + user.getEmail());
+          "User has no Cart in Active status, Email:" + email);
     }
     return cart;
   }
@@ -71,7 +72,7 @@ public class CartService {
   }
 
   public CartResponseDTO getCartWithTotal(User user) {
-    Cart cart = findCartByUser(user);
+    Cart cart = getUserCart(user);
     CartResponseDTO dto = cartMapper.toCartResponseDTO(cart);
     dto.setTotal(priceCalculationService.calculateCartTotal(cart.getCartItems()));
     return dto;
@@ -105,8 +106,8 @@ public class CartService {
     cartRepository.save(cart);
   }
 
-  public void deleteItem(User user, Long itemId) {
-    Cart cart = findCartByUser(user);
+  public void removeItem(User user, Long itemId) {
+    Cart cart = getUserCart(user);
 
     CartItem cartItem =
         cart.getCartItems().stream()
@@ -119,7 +120,8 @@ public class CartService {
   }
 
   private Cart findActiveOrCreateCart(User user) {
-    Cart cart = cartRepository.findByUserAndStatus(user, CartStatus.ACTIVE);
+    String email = currentUser.getCurrentUserEmail();
+    Cart cart = cartRepository.findByUserEmailAndStatus(email, CartStatus.ACTIVE);
 
     if (cart != null) {
       return cart;
@@ -141,13 +143,13 @@ public class CartService {
   }
 
   @Transactional
-  public void updateCartItem(User user, Long itemId, Integer quantity) {
+  public void updateItemQuantity(User user, Long itemId, Integer quantity) {
 
     if (quantity <= 0) {
       throw new InvalidCartItemQuantityException("Quantity: " + quantity);
     }
 
-    Cart cart = findCartByUser(user);
+    Cart cart = getUserCart(user);
 
     CartItem cartItem =
         cart.getCartItems().stream()
@@ -161,7 +163,7 @@ public class CartService {
 
   @Transactional
   public void updateCartStatus(User user, String status) {
-    Cart cart = findCartByUser(user);
+    Cart cart = getUserCart(user);
     try{
       cart.setStatus(CartStatus.valueOf(status.toUpperCase()));
       cartRepository.save(cart);

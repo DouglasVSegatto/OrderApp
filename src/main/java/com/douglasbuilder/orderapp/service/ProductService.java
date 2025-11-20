@@ -5,7 +5,6 @@ import com.douglasbuilder.orderapp.dto.product.UpdateProductDTO;
 import com.douglasbuilder.orderapp.exceptions.product.DuplicateNameException;
 import com.douglasbuilder.orderapp.exceptions.product.ProductInsufficientStockException;
 import com.douglasbuilder.orderapp.exceptions.product.ProductNotFoundException;
-import com.douglasbuilder.orderapp.exceptions.user.UserNotFoundException;
 import com.douglasbuilder.orderapp.mappers.ProductMapper;
 import com.douglasbuilder.orderapp.model.Product;
 import com.douglasbuilder.orderapp.repository.ProductRepository;
@@ -23,7 +22,7 @@ public class ProductService {
   private final ProductRepository productRepository;
   private final ProductMapper productMapper;
 
-  public List<Product> getAll() {
+  public List<Product> getAllProducts() {
     return productRepository.findAll();
   }
 
@@ -31,7 +30,7 @@ public class ProductService {
     return productRepository.getAllByAvailableTrue();
   }
 
-  public Product find(UUID id) {
+  public Product getProduct(UUID id) {
     return productRepository
         .findById(id)
         .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + id));
@@ -85,7 +84,7 @@ public class ProductService {
   }
 
   public void reduceStock(UUID productId, Integer quantity) {
-    Product product = find(productId);
+    Product product = getProduct(productId);
 
     if (!product.getAvailable()) {
       throw new ProductInsufficientStockException("Product is not available");

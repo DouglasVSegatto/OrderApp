@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TokenRepository extends JpaRepository<Token, UUID> {
-  void deleteAllByUser(User user);
+  void deleteAllByUserEmail(String email);
 
   boolean existsByToken(String token);
 

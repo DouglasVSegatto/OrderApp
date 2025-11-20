@@ -10,17 +10,21 @@ import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.model.enumetations.TokenType;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
 import java.time.Instant;
+
+import com.douglasbuilder.orderapp.service.CurrentUserService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class TokenService {
 
   private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
   private final TokenRepository tokenRepository;
+  private final CurrentUserService currentUser;
 
   @Value("${api.security.token.secret}")
   private String secret;
@@ -30,10 +34,6 @@ public class TokenService {
 
   @Value("${application.security.token.refresh-token-expiration}")
   private int refreshTokenExpireTime;
-
-  public TokenService(TokenRepository tokenRepository) {
-    this.tokenRepository = tokenRepository;
-  }
 
   private Algorithm getAlgorithm() {
     return Algorithm.HMAC256(secret);
@@ -111,5 +111,13 @@ public class TokenService {
 
   public boolean isRefreshToken(DecodedJWT decodedJWT) {
     return TokenType.REFRESH.toString().equals(decodedJWT.getClaim("type").asString());
+  }
+
+  public void deleteUSerToken(String email){
+    tokenRepository.deleteAllByUserEmail(email);
+  }
+
+  public void deleteUSerToken(){
+    tokenRepository.deleteAllByUserEmail(currentUser.getCurrentUserEmail());
   }
 }

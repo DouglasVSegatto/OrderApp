@@ -1,12 +1,8 @@
 package com.douglasbuilder.orderapp.controller;
 
 import com.douglasbuilder.orderapp.dto.api.ApiResponse;
-import com.douglasbuilder.orderapp.dto.profile.ProfileChangePasswordDTO;
-import com.douglasbuilder.orderapp.dto.user.UpdateUserDTO;
-import com.douglasbuilder.orderapp.model.User;
+import com.douglasbuilder.orderapp.dto.user.UserChangePasswordDTO;
 import com.douglasbuilder.orderapp.service.UserService;
-import java.util.UUID;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
@@ -27,57 +23,45 @@ public class UserController {
   }
 
   @GetMapping("/me")
-  public ResponseEntity<ApiResponse<Object>> getUser() {
-    return ResponseEntity.ok(new ApiResponse<>(userService.findByEmail()));
+  public ResponseEntity<ApiResponse<Object>> getUserProfile() {
+    return ResponseEntity.ok(new ApiResponse<>(userService.getUser()));
   }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<ApiResponse<Object>> deleteUserById(@PathVariable UUID id) {
-    userService.deleteById(id);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse<>());
-  }
-
-  @PutMapping("/{id}")
-  public ResponseEntity<ApiResponse<Object>> updateUserById(
-      @PathVariable UUID id, @RequestBody UpdateUserDTO updateUserDTO) {
-    userService.updateById(id, updateUserDTO);
-    return ResponseEntity.ok(new ApiResponse<>());
-  }
-
+  
   // UPDATE PROFILE
   @PutMapping("/first-name")
   public ResponseEntity<ApiResponse<Object>> updateFirstName(
-          @RequestParam String firstName, User user) {
-    userService.updateFirstName(firstName, user);
+          @RequestParam String firstName) {
+    userService.updateFirstName(firstName);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 
   @PutMapping("/last-name")
   public ResponseEntity<ApiResponse<Object>> updateLastName(
-          @RequestParam String lastName, User user) {
-    userService.updateLastName(lastName, user);
+          @RequestParam String lastName) {
+    userService.updateLastName(lastName);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 
   @PutMapping("/email")
   public ResponseEntity<ApiResponse<Object>> updateEmail(
-          @Email @RequestParam String email, User user) {
-    userService.updateEmail(email, user);
+          @Email @RequestParam String email) {
+    userService.updateEmail(email);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 
   @PutMapping("/password")
   public ResponseEntity<ApiResponse<Object>> changePassword(
-          @Valid @RequestBody ProfileChangePasswordDTO dto, User user) {
-    userService.changePassword(dto, user);
+          @Valid @RequestBody UserChangePasswordDTO dto) {
+    userService.changePassword(dto);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 
 
   //DELETE/DISABLE
   @DeleteMapping
-  public ResponseEntity<ApiResponse<Object>> deleteAccount(User user) {
-    userService.deleteAccount(user);
+  public ResponseEntity<ApiResponse<Object>> deleteAccount() {
+    userService.deleteAccount();
     return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse<>());
   }
 }

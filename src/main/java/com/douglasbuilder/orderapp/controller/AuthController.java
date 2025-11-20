@@ -33,8 +33,8 @@ public class AuthController {
   }
 
   @PostMapping("/logout")
-  public ResponseEntity<ApiResponse<Object>> logout(User user) {
-    authService.logout(user);
+  public ResponseEntity<ApiResponse<Object>> logout() {
+    authService.logout();
     return ResponseEntity.ok(new ApiResponse<>());
   }
 

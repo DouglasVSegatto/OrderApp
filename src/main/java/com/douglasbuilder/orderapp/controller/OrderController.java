@@ -20,13 +20,13 @@ public class OrderController {
 
   @GetMapping
   public ResponseEntity<ApiResponse<Object>> getUserOrders(User user) {
-    List<Order> orders = orderService.getOrdersByUser(user);
+    List<Order> orders = orderService.getUserOrders(user);
     return ResponseEntity.ok(new ApiResponse<>(orders));
   }
 
   @GetMapping("/{orderId}")
   public ResponseEntity<ApiResponse<Object>> getOrder(@PathVariable UUID orderId, User user) {
-    Order order = orderService.getOrderByIdAndUser(orderId, user);
+    Order order = orderService.getUserOrder(orderId, user);
     return ResponseEntity.ok(new ApiResponse<>(order));
   }
 
@@ -45,7 +45,7 @@ public class OrderController {
   @DeleteMapping("/{orderId}/delete")
   public ResponseEntity<ApiResponse<Object>> deleteOrderById(
       @PathVariable UUID orderId, User user) {
-    orderService.deleteOrderById(orderId, user);
+    orderService.deleteOrder(orderId, user);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 }
