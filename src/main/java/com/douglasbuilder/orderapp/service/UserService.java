@@ -2,6 +2,7 @@ package com.douglasbuilder.orderapp.service;
 
 import com.douglasbuilder.orderapp.dto.user.UserChangePasswordDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
+import com.douglasbuilder.orderapp.dto.user.UserProfileDTO;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
 import com.douglasbuilder.orderapp.mappers.UserMapper;
 import com.douglasbuilder.orderapp.model.User;
@@ -111,6 +112,14 @@ public class UserService implements UserDetailsService {
     user.setEmail(email);
     saveUser(user);
     tokenService.deleteUSerToken(previousEmail);
+  }
+
+  public UserProfileDTO getUserProfile() {
+    User user = getUser();
+    UserProfileDTO dto = userMapper.toProfileDTO(user);
+    dto.setMemberSince(user.getCreatedAt());
+    dto.setLastLoginAgo(user.getLastLogin());
+    return dto;
   }
 
 }

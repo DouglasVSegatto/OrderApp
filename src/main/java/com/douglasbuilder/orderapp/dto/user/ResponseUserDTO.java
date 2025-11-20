@@ -17,4 +17,6 @@ public class ResponseUserDTO {
 
   @JsonProperty("message")
   private String message;
+
+
 }

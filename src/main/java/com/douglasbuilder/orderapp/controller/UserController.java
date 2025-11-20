@@ -24,7 +24,7 @@ public class UserController {
 
   @GetMapping("/me")
   public ResponseEntity<ApiResponse<Object>> getUserProfile() {
-    return ResponseEntity.ok(new ApiResponse<>(userService.getUser()));
+    return ResponseEntity.ok(new ApiResponse<>(userService.getUserProfile()));
   }
 
   
@@ -57,8 +57,8 @@ public class UserController {
     return ResponseEntity.ok(new ApiResponse<>());
   }
 
-
   //DELETE/DISABLE
+  //TODO User token still works, FUTURE: to implement isLoggedOut to user to track.
   @DeleteMapping
   public ResponseEntity<ApiResponse<Object>> deleteAccount() {
     userService.deleteAccount();
