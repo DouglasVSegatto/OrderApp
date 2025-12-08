@@ -12,18 +12,18 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart, UUID> {
-  Cart findByUser(User user);
+  Cart findByUserEmail(String email);
 
-  List<Cart> findAllByUser(User user);
+  List<Cart> findAllByUserEmail(String email);
 
   User user(@NotNull User user);
 
-  boolean existsByUser(User user);
+  boolean existsByIdAndUserEmail(UUID id, String email);
 
   Cart findByUserEmailAndStatus(String userEmail, CartStatus cartStatus);
 
-  void deleteCartByIdAndUser(UUID cartId, User user);
+  void deleteCartByIdAndUserEmail(UUID cartId, String email);
 
-  Optional<Cart> findByIdAndUser(UUID id, User user);
+  Optional<Cart> findByIdAndUserEmail(UUID id, String email);
 
 }

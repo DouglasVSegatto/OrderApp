@@ -1,6 +1,5 @@
 package com.douglasbuilder.orderapp.dto.cart;
 
-import com.douglasbuilder.orderapp.model.CartItem;
 import com.douglasbuilder.orderapp.model.enumetations.CartStatus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ public class CartResponseDTO {
   private UUID id;
   private UUID userId;
   private CartStatus status;
-  private String userName;
+  private String email;
   private BigDecimal total;
-  private List<CartItem> cartItems = new ArrayList<>();
+  private List<CartItemResponseDTO> cartItems = new ArrayList<>();
 }

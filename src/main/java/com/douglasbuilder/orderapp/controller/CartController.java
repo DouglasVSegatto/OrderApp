@@ -1,11 +1,9 @@
 package com.douglasbuilder.orderapp.controller;
 
 import com.douglasbuilder.orderapp.dto.api.ApiResponse;
-import com.douglasbuilder.orderapp.mappers.CartMapper;
-import com.douglasbuilder.orderapp.model.Cart;
-import com.douglasbuilder.orderapp.model.User;
+import com.douglasbuilder.orderapp.dto.cart.CartItemAddDTO;
+import com.douglasbuilder.orderapp.dto.cart.CartItemQuantityUpdateDTO;
 import com.douglasbuilder.orderapp.service.CartService;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,52 +15,54 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CartController {
 
-  private final CartMapper cartMapper;
   private final CartService cartService;
 
   // CART RELATED
   @GetMapping
-  public ResponseEntity<ApiResponse<Object>> getAllCartsByUser(User user) {
-    List<Cart> carts = cartService.getUserCarts(user);
-    return ResponseEntity.ok(new ApiResponse<>(carts));
+  public ResponseEntity<ApiResponse<Object>> getAllCartsByUser() {
+    return ResponseEntity.ok(new ApiResponse<>(cartService.getAllUserCarts()));
   }
 
   @GetMapping("/active")
   public ResponseEntity<ApiResponse<Object>> getActiveCart() {
-    Cart cart = cartService.getActiveCart();
-    return ResponseEntity.ok(new ApiResponse<>(cart));
+    return ResponseEntity.ok(new ApiResponse<>(cartService.getUserCart()));
   }
 
-  @DeleteMapping("/{cartId}/delete")
-  public ResponseEntity<ApiResponse<Object>> deleteCart(@PathVariable UUID cartId, User user) {
-    cartService.deleteCart(cartId, user);
+  @GetMapping("/{id}")
+  public ResponseEntity<ApiResponse<Object>> getCartById(@PathVariable UUID id) {
+    return ResponseEntity.ok(new ApiResponse<>(cartService.getCartByIdAndUser(id)));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<ApiResponse<Object>> deleteCart(@PathVariable UUID id) {
+    cartService.deleteCart(id);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 
   @PutMapping("/status/{status}")
-  public ResponseEntity<ApiResponse<Object>> updateCartStatus(User user, @PathVariable String status) {
-    cartService.updateCartStatus(user, status);
+  public ResponseEntity<ApiResponse<Object>> updateCartStatus(@PathVariable String status) {
+    cartService.updateActiveCartStatus(status);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 
   // CART ITEM RELATED
 
-  @PostMapping("/{productId}/addItem")
-  public ResponseEntity<ApiResponse<Object>> addItem(User user, @PathVariable UUID productId) {
-    cartService.addItem(user, productId);
+  @PostMapping("/items")
+  public ResponseEntity<ApiResponse<Object>> addItem(@RequestBody CartItemAddDTO item) {
+    cartService.addItem(item.getId());
     return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>());
   }
 
-  @DeleteMapping("/items/{itemId}")
-  public ResponseEntity<ApiResponse<Object>> deleteItem(User user, @PathVariable Long itemId) {
-    cartService.removeItem(user, itemId);
+  @DeleteMapping("/items/{id}")
+  public ResponseEntity<ApiResponse<Object>> deleteItem(@PathVariable Long id) {
+    cartService.removeItem(id);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 
-  @PutMapping("/items/{itemId}/quantity/{quantity}")
+  @PutMapping("/items/{id}")
   public ResponseEntity<ApiResponse<Object>> updateItemQuantity(
-      User user, @PathVariable Long itemId, @PathVariable Integer quantity) {
-    cartService.updateItemQuantity(user, itemId, quantity);
+      @PathVariable Long id, @RequestBody CartItemQuantityUpdateDTO update) {
+    cartService.updateItemQuantity(id, update);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 }

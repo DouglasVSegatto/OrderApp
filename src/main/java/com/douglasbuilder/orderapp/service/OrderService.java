@@ -27,6 +27,7 @@ public class OrderService {
   private final PriceCalculationService priceCalculationService;
   private final ProductService productService;
   private final CartRepository cartRepository;
+  private final CurrentUserService currentUser;
 
   public List<Order> getUserOrders(User user) {
     return orderRepository.findAllByUser(user);
@@ -64,7 +65,7 @@ public class OrderService {
   public void payOrder(UUID cartId, User user) {
     Cart cart =
         cartRepository
-            .findByIdAndUser(cartId, user)
+            .findByIdAndUserEmail(cartId, currentUser.getCurrentUserEmail())
             .orElseThrow(() -> new OrderNotFoundException("Order ID: " + cartId));
 
     if (cart.getStatus().equals(CartStatus.PAID)) {

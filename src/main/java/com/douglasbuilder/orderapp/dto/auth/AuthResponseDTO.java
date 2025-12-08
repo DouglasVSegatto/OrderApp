@@ -1,6 +1,5 @@
 package com.douglasbuilder.orderapp.dto.auth;
 
-import com.douglasbuilder.orderapp.model.Token;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;

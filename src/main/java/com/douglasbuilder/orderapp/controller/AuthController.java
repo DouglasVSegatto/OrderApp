@@ -3,7 +3,6 @@ package com.douglasbuilder.orderapp.controller;
 import com.douglasbuilder.orderapp.dto.api.ApiResponse;
 import com.douglasbuilder.orderapp.dto.auth.AuthRequestDTO;
 import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
-import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
