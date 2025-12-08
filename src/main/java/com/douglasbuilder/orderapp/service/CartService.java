@@ -44,25 +44,39 @@ public class CartService {
     return findUserCarts().stream().map(cart -> generateCartTotalDTO(cart)).toList();
   }
 
-  private List<Cart> findUserCarts(){
-      var email = currentUser.getCurrentUserEmail();
-      List<Cart> carts = cartRepository.findAllByUserEmail(email);
-      if (carts == null) {
-        throw new CartNotFoundException("User has no Cart, Email:" + email);
-      }
-      return carts;
+  private List<Cart> findUserCarts() {
+    var email = currentUser.getCurrentUserEmail();
+    List<Cart> carts = cartRepository.findAllByUserEmail(email);
+    if (carts == null) {
+      throw new CartNotFoundException("User has no Cart, Email:" + email);
     }
+    return carts;
+  }
 
   public CartResponseDTO getUserCart() {
     var cart = findActiveCart();
     return generateCartTotalDTO(cart);
   }
 
-  private CartResponseDTO generateCartTotalDTO(Cart cart){
+  private CartResponseDTO generateCartTotalDTO(Cart cart) {
 
-    var total = priceCalculationService.calculateCartTotal(cart.getCartItems());
     var dto = cartMapper.toCartResponseDTO(cart);
-    dto.setTotal(total);
+
+    for (var item : dto.getCartItems()) {
+      var product =
+          productRepository
+              .findById(item.getProductId())
+              .orElseThrow(
+                  () -> new ProductNotFoundException("Product ID: " + item.getProductId()));
+      var subtotal =
+          priceCalculationService.calculateItemSubtotal(product.getPrice(), item.getQuantity());
+      item.setPrice(product.getPrice());
+      item.setSubtotal(subtotal);
+    }
+
+    var cart_total = priceCalculationService.calculateCartTotal(cart.getCartItems());
+
+    dto.setTotal(cart_total);
     return dto;
   }
 
@@ -70,8 +84,7 @@ public class CartService {
     var email = currentUser.getCurrentUserEmail();
     Cart cart = cartRepository.findByUserEmailAndStatus(email, CartStatus.ACTIVE);
     if (cart == null) {
-      throw new CartNotFoundException(
-          "User has no Cart in Active status, Email:" + email);
+      throw new CartNotFoundException("User has no Cart in Active status, Email:" + email);
     }
     return cart;
   }
@@ -83,8 +96,8 @@ public class CartService {
 
   public Cart findCartByIdAndUser(UUID cartId) {
     return cartRepository
-            .findByIdAndUserEmail(cartId, currentUser.getCurrentUserEmail())
-            .orElseThrow(() -> new CartNotFoundException("Cart ID Not found"));
+        .findByIdAndUserEmail(cartId, currentUser.getCurrentUserEmail())
+        .orElseThrow(() -> new CartNotFoundException("Cart ID Not found"));
   }
 
   public void addItem(UUID productId) {
@@ -118,14 +131,15 @@ public class CartService {
   public void removeItem(Long itemId) {
     Cart cart = findActiveCart();
 
-    var itemToDelete = cartItemRepository
+    var itemToDelete =
+        cartItemRepository
             .findByIdAndCartId(itemId, cart.getId())
             .orElseThrow(() -> new CartItemNotFoundException("ID: " + itemId));
 
     cartItemRepository.delete(itemToDelete);
   }
 
-  //TODO Review better solution for setUser or refactor it.
+  // TODO Review better solution for setUser or refactor it.
   private Cart findActiveOrCreateCart() {
     var email = currentUser.getCurrentUserEmail();
     Cart cart = cartRepository.findByUserEmailAndStatus(email, CartStatus.ACTIVE);
@@ -154,7 +168,8 @@ public class CartService {
   public void updateItemQuantity(Long id, CartItemQuantityUpdateDTO dto) {
     var quantity = dto.getQuantity();
     if (dto.getQuantity() <= 0) {
-      throw new InvalidCartItemQuantityException("Quantity must be at least 1, passed: " + quantity);
+      throw new InvalidCartItemQuantityException(
+          "Quantity must be at least 1, passed: " + quantity);
     }
 
     Cart cart = findActiveCart();
@@ -172,7 +187,7 @@ public class CartService {
   @Transactional
   public void updateActiveCartStatus(String status) {
     Cart cart = findActiveCart();
-    try{
+    try {
       cart.setStatus(CartStatus.valueOf(status.toUpperCase()));
       cartRepository.save(cart);
     } catch (IllegalArgumentException e) {
