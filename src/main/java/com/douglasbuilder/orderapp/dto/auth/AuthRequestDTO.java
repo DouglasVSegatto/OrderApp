@@ -9,7 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthRequestDTO {
-
+  /*{
+    "email": "user@example.com",
+    "password": "mySecurePassword123"
+  }
+  */
   @Email
   private String email;
   private String password;

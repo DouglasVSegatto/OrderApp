@@ -1,6 +1,8 @@
 package com.douglasbuilder.orderapp.controller;
 
 import com.douglasbuilder.orderapp.dto.api.ApiResponse;
+import com.douglasbuilder.orderapp.dto.user.AddressUpdateDTO;
+import com.douglasbuilder.orderapp.dto.user.UpdatePhoneNumberDTO;
 import com.douglasbuilder.orderapp.dto.user.UserChangePasswordDTO;
 import com.douglasbuilder.orderapp.service.UserService;
 import jakarta.validation.Valid;
@@ -54,6 +56,20 @@ public class UserController {
   public ResponseEntity<ApiResponse<Object>> changePassword(
           @Valid @RequestBody UserChangePasswordDTO dto) {
     userService.changePassword(dto);
+    return ResponseEntity.ok(new ApiResponse<>());
+  }
+
+  @PutMapping("/address")
+  public ResponseEntity<ApiResponse<Object>> updateAddress(
+          @Valid @RequestBody AddressUpdateDTO dto) {
+    userService.updateAddress(dto);
+    return ResponseEntity.ok(new ApiResponse<>());
+  }
+
+  @PutMapping("/phone_number")
+  public ResponseEntity<ApiResponse<Object>> updatePhoneNumber(
+          @Valid @RequestBody UpdatePhoneNumberDTO dto) {
+    userService.updatePhoneNumber(dto);
     return ResponseEntity.ok(new ApiResponse<>());
   }
 

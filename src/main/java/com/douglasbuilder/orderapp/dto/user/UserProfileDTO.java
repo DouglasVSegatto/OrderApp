@@ -20,7 +20,6 @@ public class UserProfileDTO {
     private LocalDateTime lastLogin;
     private String phoneNumber;
     private String address;
-    private String zipcode;
     private boolean enabled;
     private String fullName;
     private String memberSince; // "2 months ago", "1 year ago", etc.

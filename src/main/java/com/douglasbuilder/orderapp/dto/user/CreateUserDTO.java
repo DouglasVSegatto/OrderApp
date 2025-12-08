@@ -10,22 +10,48 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateUserDTO {
-
+  /*
+  {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "test@example.com",
+    "password": "test",
+    "role": "USER",
+    "phoneCountry": "1",
+    "phoneNumber": "1112223333",
+    "addressStreet": "123 Main St",
+    "addressNumber": "1000",
+    "addressCity": "Vitoria",
+    "addressState": "ES",
+    "addressCountry": "BRZ",
+    "addressZipcode": "10001"
+  }
+  */
   @NotBlank(message = "First Name is required")
-  String firstName;
+  private String firstName;
 
   @NotBlank(message = "Last Name is required")
-  String lastName;
+  private String lastName;
 
   @Email(message = "Invalid email format")
   @NotBlank(message = "Email is required")
-  String email;
+  private String email;
 
   @NotBlank(message = "Password is required")
-  String password;
+  private String password;
 
   @NotBlank(message = "Roles is required")
-  String role;
+  private String role;
+
+  // Optional
+  private String phoneCountry;
+  private String phoneNumber;
+  private String addressStreet;
+  private String addressNumber;
+  private String addressCity;
+  private String addressState;
+  private String addressCountry;
+  private String addressZipcode;
 
   public void setEmail(String email) {
     this.email = email.toLowerCase();

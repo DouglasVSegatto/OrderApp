@@ -9,7 +9,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductDTO {
-
+  /*{
+    "name": "Gaming Laptop",
+    "sku": "LAPTOP-001",
+    "type": "Electronics",
+    "quantityInStock": 50,
+    "price": 1299.99,
+    "available": true
+  }
+  */
   private String name;
   private String sku;
   private String type;

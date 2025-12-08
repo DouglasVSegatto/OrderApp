@@ -1,8 +1,6 @@
 package com.douglasbuilder.orderapp.service;
 
-import com.douglasbuilder.orderapp.dto.user.UserChangePasswordDTO;
-import com.douglasbuilder.orderapp.dto.user.CreateUserDTO;
-import com.douglasbuilder.orderapp.dto.user.UserProfileDTO;
+import com.douglasbuilder.orderapp.dto.user.*;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
 import com.douglasbuilder.orderapp.mappers.UserMapper;
 import com.douglasbuilder.orderapp.model.User;
@@ -12,7 +10,6 @@ import com.douglasbuilder.orderapp.security.TokenService;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -63,7 +60,7 @@ public class UserService implements UserDetailsService {
     tokenService.deleteUSerToken(email);
   }
 
-  //TODO User token still works, FUTURE: to implement isLoggedOut to user to track.
+  // TODO User token still works, FUTURE: to implement isLoggedOut to user to track.
   @Transactional
   public void changePassword(UserChangePasswordDTO dto) {
     User user = getUser();
@@ -104,7 +101,7 @@ public class UserService implements UserDetailsService {
     saveUser(user);
   }
 
-  //TODO compare new with previous
+  // TODO compare new with previous
   @Transactional
   public void updateEmail(@Valid String email) {
     User user = getUser();
@@ -114,6 +111,24 @@ public class UserService implements UserDetailsService {
     tokenService.deleteUSerToken(previousEmail);
   }
 
+  public void updateAddress(AddressUpdateDTO dto) {
+    User user = getUser();
+    user.setAddressNumber(dto.getNumber());
+    user.setAddressStreet(dto.getStreet());
+    user.setAddressCity(dto.getCity());
+    user.setAddressState(dto.getState());
+    user.setAddressCountry(dto.getCountry());
+    user.setAddressZipcode(dto.getZipcode());
+    saveUser(user);
+  }
+
+  public void updatePhoneNumber(UpdatePhoneNumberDTO dto) {
+    User user = getUser();
+    user.setPhoneCountry(dto.getPhoneCountry());
+    user.setPhoneNumber(dto.getPhoneNumber());
+    saveUser(user);
+  }
+
   public UserProfileDTO getUserProfile() {
     User user = getUser();
     UserProfileDTO dto = userMapper.toProfileDTO(user);
@@ -121,5 +136,4 @@ public class UserService implements UserDetailsService {
     dto.setLastLoginAgo(user.getLastLogin());
     return dto;
   }
-
 }

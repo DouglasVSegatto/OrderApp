@@ -11,6 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProductDTO {
+  /*{
+    "type": "Electronics",
+    "quantity": 75,
+    "price": 1199.99,
+    "available": true
+  }
+  */
   //    private String name; ??????
   private String type;
   private Long quantity;
