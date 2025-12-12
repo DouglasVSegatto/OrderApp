@@ -1,6 +1,7 @@
 package com.douglasbuilder.orderapp.model;
 
 import com.douglasbuilder.orderapp.model.enumetations.UserRoles;
+import com.douglasbuilder.orderapp.valueObject.Address;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -44,17 +45,7 @@ public class User implements UserDetails {
 
   @Column private String phoneNumber;
 
-  @Column private String addressStreet;
-
-  @Column private String addressNumber;
-
-  @Column private String addressCity;
-
-  @Column private String addressState;
-
-  @Column private String addressCountry;
-
-  @Column private String addressZipcode;
+  @Column @Embedded Address address;
 
   @PrePersist
   protected void onCreate() {
@@ -67,39 +58,6 @@ public class User implements UserDetails {
 
   public String getFullPhoneNumber() {
     return "+" + getPhoneCountry() + " " + getPhoneNumber();
-  }
-
-  public String getFullAddress() {
-    StringBuilder address = new StringBuilder();
-
-    if (addressStreet != null && !addressStreet.trim().isEmpty()) {
-      address.append(addressStreet);
-      if (addressNumber != null && !addressNumber.trim().isEmpty()) {
-        address.append(", ").append(addressNumber);
-      }
-    }
-
-    if (addressCity != null && !addressCity.trim().isEmpty()) {
-      if (!address.isEmpty()) address.append(", ");
-      address.append(addressCity);
-    }
-
-    if (addressState != null && !addressState.trim().isEmpty()) {
-      if (!address.isEmpty()) address.append(", ");
-      address.append(addressState);
-    }
-
-    if (addressZipcode != null && !addressZipcode.trim().isEmpty()) {
-      if (!address.isEmpty()) address.append(" ");
-      address.append(addressZipcode);
-    }
-
-    if (addressCountry != null && !addressCountry.trim().isEmpty()) {
-      if (!address.isEmpty()) address.append(", ");
-      address.append(addressCountry);
-    }
-
-    return address.toString();
   }
 
   @Override
@@ -134,4 +92,5 @@ public class User implements UserDetails {
   public boolean isEnabled() {
     return UserDetails.super.isEnabled();
   }
+
 }

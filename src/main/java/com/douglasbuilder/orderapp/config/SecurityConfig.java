@@ -35,6 +35,8 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/refresh-token")
                     .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/zipcode/lookup/**")
+                    .permitAll()
                     .anyRequest().authenticated()
             )
         .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);

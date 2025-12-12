@@ -2,6 +2,7 @@ package com.douglasbuilder.orderapp.service;
 
 import com.douglasbuilder.orderapp.dto.user.*;
 import com.douglasbuilder.orderapp.exceptions.auth.AuthInvalidCredentialsException;
+import com.douglasbuilder.orderapp.mappers.AddressMapper;
 import com.douglasbuilder.orderapp.mappers.UserMapper;
 import com.douglasbuilder.orderapp.model.User;
 import com.douglasbuilder.orderapp.repository.TokenRepository;
@@ -28,6 +29,7 @@ public class UserService implements UserDetailsService {
   private final TokenRepository tokenRepository;
   private final CurrentUserService currentUser;
   private final TokenService tokenService;
+  private final AddressMapper addressMapper;
 
   public List<User> getAll() {
     return userRepository.findAll();
@@ -113,12 +115,8 @@ public class UserService implements UserDetailsService {
 
   public void updateAddress(AddressUpdateDTO dto) {
     User user = getUser();
-    user.setAddressNumber(dto.getNumber());
-    user.setAddressStreet(dto.getStreet());
-    user.setAddressCity(dto.getCity());
-    user.setAddressState(dto.getState());
-    user.setAddressCountry(dto.getCountry());
-    user.setAddressZipcode(dto.getZipcode());
+    var address = addressMapper.toModel(dto);
+    user.setAddress(address);
     saveUser(user);
   }
 

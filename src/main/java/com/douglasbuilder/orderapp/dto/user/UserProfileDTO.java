@@ -22,8 +22,8 @@ public class UserProfileDTO {
     private String address;
     private boolean enabled;
     private String fullName;
-    private String memberSince; // "2 months ago", "1 year ago", etc.
-    private String lastLoginAgo; // "5 minutes ago", "2 days ago", etc.
+    private String memberSince;
+    private String lastLoginAgo;
     
     public void setMemberSince(LocalDateTime createdAt) {
         this.memberSince = formatTimeAgo(createdAt);
