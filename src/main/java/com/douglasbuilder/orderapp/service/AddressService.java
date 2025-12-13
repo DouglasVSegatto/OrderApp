@@ -6,7 +6,6 @@ import com.douglasbuilder.orderapp.mappers.AddressMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,9 +20,7 @@ public class AddressService {
   public AddressResponseDTO getAddressByZipCode(String zipcode) {
     RestTemplate restTemplate = new RestTemplate();
     String uri = "https://viacep.com.br/ws/" + zipcode + "/json";
-
     ViaCepResponseDTO dto = restTemplate.getForObject(uri, ViaCepResponseDTO.class);
-
     return addressMapper.toResponseDTO(dto);
   }
 }

@@ -15,17 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/zipcode")
 public class ZipcodeController {
 
-    private final AddressService addressService;
+  private final AddressService addressService;
 
-    @GetMapping("/lookup/{zipcode}")
-    public ResponseEntity<?>getAddressByZipCode(@PathVariable String zipcode){
-
-        log.info("Received request for CEP: {}", zipcode);
-
-        var response = addressService.getAddressByZipCode(zipcode);
-
-        log.info("Response for CEP {}: {}", zipcode, response);
-
-        return ResponseEntity.ok(response);
-    }
+  @GetMapping("/lookup/{zipcode}")
+  public ResponseEntity<?> getAddressByZipCode(@PathVariable String zipcode) {
+    log.info("Received request for CEP: {}", zipcode);
+    var response = addressService.getAddressByZipCode(zipcode);
+    return ResponseEntity.ok(response);
+  }
 }
